@@ -1,0 +1,34 @@
+.modal {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+  border-radius: 10px;
+  border: none;
+}
+
+.modal-body {
+  padding: 2rem;
+
+  i {
+    margin-bottom: 1rem;
+
+    &.fa-check-circle {
+      color: #28a745;
+    }
+
+    &.fa-times-circle {
+      color: #dc3545;
+    }
+  }
+
+  p {
+    font-size: 1.1rem;
+    margin: 0;
+  }
+}
+
+.modal-backdrop {
+  z-index: 0;
+  pointer-events: none;
+}

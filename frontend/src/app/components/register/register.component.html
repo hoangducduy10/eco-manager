@@ -1,0 +1,134 @@
+<div class="container" style="max-width: 400px; margin-top: 40px">
+  <form
+    #registerForm="ngForm"
+    (ngSubmit)="register()"
+    class="sign-up-form border p-4 rounded shadow-sm bg-light"
+  >
+    <h2 class="text-center mb-4">Sign up</h2>
+
+    <div class="mb-3">
+      <label for="name" class="form-label">Name</label>
+      <input
+        type="text"
+        id="name"
+        name="name"
+        [(ngModel)]="registerData.name"
+        #name="ngModel"
+        class="form-control"
+        placeholder="Enter your name"
+        required
+      />
+      <div *ngIf="name.invalid && name.touched" class="text-danger mt-1">
+        <div *ngIf="name.errors?.['required']">Name is required.</div>
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label for="phoneNumber" class="form-label">Phone Number</label>
+      <input
+        type="text"
+        id="phoneNumber"
+        name="phone_number"
+        [(ngModel)]="registerData.phone_number"
+        #phoneNumber="ngModel"
+        class="form-control"
+        placeholder="Enter phone number"
+        minlength="10"
+        maxlength="10"
+        required
+      />
+      <div
+        *ngIf="phoneNumber.invalid && phoneNumber.touched"
+        class="text-danger mt-1"
+      >
+        <div *ngIf="phoneNumber.errors?.['required']">
+          Phone number is required.
+        </div>
+        <div
+          *ngIf="phoneNumber.errors?.['minlength'] || phoneNumber.errors?.['maxlength']"
+        >
+          Phone number must be 10 digits.
+        </div>
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label for="password" class="form-label">Password</label>
+      <input
+        type="password"
+        id="password"
+        name="password"
+        [(ngModel)]="registerData.password"
+        #password="ngModel"
+        class="form-control"
+        placeholder="Enter password"
+        minlength="8"
+        required
+      />
+      <div
+        *ngIf="password.invalid && password.touched"
+        class="text-danger mt-1"
+      >
+        <div *ngIf="password.errors?.['required']">Password is required.</div>
+        <div *ngIf="password.errors?.['minlength']">Minimum 8 characters.</div>
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label for="retypePassword" class="form-label">Retype Password</label>
+      <input
+        type="password"
+        id="retypePassword"
+        name="retype_password"
+        (input)="checkPasswordMatch()"
+        [(ngModel)]="registerData.retype_password"
+        #retypePassword="ngModel"
+        class="form-control"
+        placeholder="Retype password"
+        required
+      />
+      <div
+        *ngIf="retypePassword.invalid && retypePassword.touched"
+        class="text-danger mt-1"
+      >
+        <div *ngIf="retypePassword.errors?.['passwordNotMatch']">
+          Passwords do not match.
+        </div>
+      </div>
+    </div>
+
+    <div class="d-grid mb-3">
+      <button
+        type="submit"
+        class="btn btn-primary"
+        [disabled]="registerForm.invalid"
+      >
+        Sign up
+      </button>
+    </div>
+
+    <div class="text-center">
+      <small>
+        Already have an account?
+        <a routerLink="/sign-in">Sign in</a>
+      </small>
+    </div>
+  </form>
+
+  <!-- Modal -->
+  <div
+    class="modal"
+    [class.show]="showModal"
+    [style.display]="showModal ? 'flex' : 'none'"
+  >
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-body text-center" [ngClass]="modalClass">
+          <i [ngClass]="modalIcon"></i>
+          <p class="mt-2">{{ modalMessage }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-backdrop fade show" *ngIf="showModal"></div>
+</div>
