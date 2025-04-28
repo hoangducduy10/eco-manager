@@ -5,5 +5,5 @@ export interface UserResponse {
   name: string;
   phone_number: string;
   is_active: boolean;
-  role: Role;
+  role_id: Role;
 }

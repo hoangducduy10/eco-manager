@@ -1,0 +1,41 @@
+.pagination-container {
+  .pagination {
+    .page-item {
+      .page-link {
+        color: #2c3e50;
+        border: 1px solid #e9ecef;
+        padding: 0.5rem 0.75rem;
+        margin: 0 0.25rem;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        &:hover {
+          background-color: #f8f9fa;
+          border-color: #dee2e6;
+        }
+
+        i {
+          font-size: 0.875rem;
+        }
+      }
+
+      &.active {
+        .page-link {
+          background-color: #3498db;
+          border-color: #3498db;
+          color: #fff;
+        }
+      }
+
+      &.disabled {
+        .page-link {
+          color: #6c757d;
+          pointer-events: none;
+          background-color: #fff;
+          border-color: #dee2e6;
+        }
+      }
+    }
+  }
+}

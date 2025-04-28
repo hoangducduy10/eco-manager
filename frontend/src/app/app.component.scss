@@ -1,0 +1,36 @@
+.app-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #f8f9fa;
+}
+
+.main-content {
+  display: flex;
+  flex: 1;
+  position: relative;
+}
+
+.content {
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+@media (max-width: 991.98px) {
+  .content {
+    padding: 1.5rem;
+  }
+}
+
+/* Success snackbar */
+.mat-snack-bar-container {
+  background-color: #4caf50;
+  color: white;
+}
+
+/* Error snackbar */
+.error-snackbar {
+  background-color: #f44336;
+  color: white;
+}

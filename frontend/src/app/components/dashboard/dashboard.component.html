@@ -1,49 +1,132 @@
-<div class="container mt-4">
-  <h2 class="mb-4 text-center">Dashboard</h2>
+<!-- Welcome Section -->
+<div class="welcome-section mb-4">
+  <h1 class="welcome-title">Dashboard</h1>
+  <p class="text-muted">Chào mừng trở lại, {{ userResponse?.name }}!</p>
+</div>
 
-  <div class="row row-cols-1 row-cols-md-2 g-4">
-    <div class="col">
-      <div class="card h-100 border-success">
-        <div class="card-body text-center">
-          <h5 class="card-title">Quản lý Intern</h5>
-          <p class="card-text">Thêm, sửa, xoá, và xem danh sách các Intern.</p>
-          <a routerLink="/interns" class="btn btn-success">Xem chi tiết</a>
+<!-- Quick Stats -->
+<div class="row g-4 mb-4">
+  <div class="col-12 col-sm-6 col-xl-3">
+    <div class="stat-card">
+      <div class="stat-card-body">
+        <div class="stat-card-icon bg-primary-soft">
+          <i class="fas fa-users text-primary"></i>
         </div>
-      </div>
-    </div>
-
-    <div class="col">
-      <div class="card h-100 border-primary">
-        <div class="card-body text-center">
-          <h5 class="card-title">Chấm điểm nhân viên</h5>
-          <p class="card-text">
-            Đánh giá hiệu suất nhân viên theo từng cuộc họp.
+        <div class="stat-card-info">
+          <p class="stat-card-title">Tổng nhân viên</p>
+          <h3 class="stat-card-value">150</h3>
+          <p class="stat-card-change positive">
+            <i class="fas fa-arrow-up"></i> 12% so với tháng trước
           </p>
-          <a routerLink="/meetings" class="btn btn-primary">Xem chi tiết</a>
         </div>
       </div>
     </div>
+  </div>
 
-    <div class="col">
-      <div class="card h-100 border-info">
-        <div class="card-body text-center">
-          <h5 class="card-title">Quản lý Sản phẩm</h5>
-          <p class="card-text">
-            Quản lý thông tin sản phẩm như EcoEco, Ecooffice,...
+  <div class="col-12 col-sm-6 col-xl-3">
+    <div class="stat-card">
+      <div class="stat-card-body">
+        <div class="stat-card-icon bg-success-soft">
+          <i class="fas fa-tasks text-success"></i>
+        </div>
+        <div class="stat-card-info">
+          <p class="stat-card-title">Dự án đang thực hiện</p>
+          <h3 class="stat-card-value">24</h3>
+          <p class="stat-card-change positive">
+            <i class="fas fa-arrow-up"></i> 8% so với tháng trước
           </p>
-          <a routerLink="/products" class="btn btn-info">Xem chi tiết</a>
         </div>
       </div>
     </div>
+  </div>
 
-    <div class="col">
-      <div class="card h-100 border-warning">
-        <div class="card-body text-center">
-          <h5 class="card-title">Phân công nhân viên</h5>
-          <p class="card-text">Giao nhân viên vào các sản phẩm phù hợp.</p>
-          <a routerLink="/assignments" class="btn btn-warning">Xem chi tiết</a>
+  <div class="col-12 col-sm-6 col-xl-3">
+    <div class="stat-card">
+      <div class="stat-card-body">
+        <div class="stat-card-icon bg-info-soft">
+          <i class="fas fa-check-circle text-info"></i>
+        </div>
+        <div class="stat-card-info">
+          <p class="stat-card-title">Nhiệm vụ hoàn thành</p>
+          <h3 class="stat-card-value">85%</h3>
+          <p class="stat-card-change positive">
+            <i class="fas fa-arrow-up"></i> 5% so với tháng trước
+          </p>
         </div>
       </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-sm-6 col-xl-3">
+    <div class="stat-card">
+      <div class="stat-card-body">
+        <div class="stat-card-icon bg-warning-soft">
+          <i class="fas fa-star text-warning"></i>
+        </div>
+        <div class="stat-card-info">
+          <p class="stat-card-title">Đánh giá trung bình</p>
+          <h3 class="stat-card-value">4.8</h3>
+          <p class="stat-card-change positive">
+            <i class="fas fa-arrow-up"></i> 2% so với tháng trước
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Recent Activities -->
+<div class="card">
+  <div
+    class="card-header bg-white border-0 d-flex justify-content-between align-items-center"
+  >
+    <h5 class="card-title mb-0">Hoạt động gần đây</h5>
+    <button class="btn btn-primary btn-sm">Xem tất cả</button>
+  </div>
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="bg-light">
+          <tr>
+            <th>Nhân viên</th>
+            <th>Hoạt động</th>
+            <th>Thời gian</th>
+            <th>Trạng thái</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <div class="d-flex align-items-center">
+                <div class="avatar-sm me-3 bg-primary-soft rounded-circle">
+                  <span class="avatar-initials">NV</span>
+                </div>
+                <span>Nguyễn Văn A</span>
+              </div>
+            </td>
+            <td>Cập nhật báo cáo tháng</td>
+            <td>2 giờ trước</td>
+            <td>
+              <span class="badge bg-success-soft text-success">Hoàn thành</span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="d-flex align-items-center">
+                <div class="avatar-sm me-3 bg-info-soft rounded-circle">
+                  <span class="avatar-initials">TT</span>
+                </div>
+                <span>Trần Thị B</span>
+              </div>
+            </td>
+            <td>Thêm dự án mới</td>
+            <td>3 giờ trước</td>
+            <td>
+              <span class="badge bg-warning-soft text-warning">Đang xử lý</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </div>

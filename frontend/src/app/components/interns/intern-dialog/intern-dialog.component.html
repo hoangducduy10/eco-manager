@@ -1,0 +1,62 @@
+<div class="dialog-container">
+  <h2 mat-dialog-title>{{ intern.id ? "Chỉnh sửa Intern" : "Thêm Intern" }}</h2>
+  <mat-dialog-content>
+    <form>
+      <mat-form-field class="w-100">
+        <mat-label>Họ và Tên</mat-label>
+        <input
+          matInput
+          [(ngModel)]="intern.full_name"
+          name="full_name"
+          required
+        />
+      </mat-form-field>
+      <mat-form-field class="w-100">
+        <mat-label>Email</mat-label>
+        <input matInput [(ngModel)]="intern.email" name="email" required />
+      </mat-form-field>
+      <mat-form-field class="w-100">
+        <mat-label>Số điện thoại</mat-label>
+        <input
+          matInput
+          [(ngModel)]="intern.phone_number"
+          name="phone_number"
+          required
+        />
+      </mat-form-field>
+      <mat-form-field class="w-100">
+        <mat-label>Ngày bắt đầu</mat-label>
+        <input
+          matInput
+          type="date"
+          [(ngModel)]="intern.start_date"
+          name="start_date"
+          required
+        />
+      </mat-form-field>
+      <mat-form-field class="w-100">
+        <mat-label>Trạng thái</mat-label>
+        <mat-select [(ngModel)]="intern.status" name="status" required>
+          <mat-option value="Active">Đang làm việc</mat-option>
+          <mat-option value="Inactive">Đã nghỉ</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </form>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="cancel()">Hủy</button>
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="save()"
+      [disabled]="
+        !intern.full_name ||
+        !intern.email ||
+        !intern.phone_number ||
+        !intern.start_date
+      "
+    >
+      Lưu
+    </button>
+  </mat-dialog-actions>
+</div>

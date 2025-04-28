@@ -1,1 +1,22 @@
-<router-outlet />
+<!-- Auth pages -->
+<router-outlet *ngIf="isAuthRoute()"></router-outlet>
+
+<!-- Main app -->
+<div class="app-wrapper" *ngIf="!isAuthRoute()">
+  <!-- Header -->
+  <app-header></app-header>
+
+  <!-- Main Content & Sidebar -->
+  <div class="main-content">
+    <!-- Sidebar -->
+    <app-navbar></app-navbar>
+
+    <!-- Main Content Area -->
+    <div class="content">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <app-footer></app-footer>
+</div>

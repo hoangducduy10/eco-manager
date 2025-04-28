@@ -1,0 +1,61 @@
+<header class="app-header">
+  <div class="header-container">
+    <!-- Left Section -->
+    <div class="header-left">
+      <button class="btn btn-icon menu-toggle d-lg-none">
+        <i class="fas fa-bars"></i>
+      </button>
+      <div class="search-box">
+        <i class="fas fa-search search-icon"></i>
+        <input type="text" class="search-input" placeholder="Tìm kiếm..." />
+      </div>
+    </div>
+
+    <!-- Right Section -->
+    <div class="header-right">
+      <div class="dropdown user-dropdown">
+        <button
+          class="user-profile dropdown-toggle"
+          type="button"
+          id="userDropdown"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+        >
+          <div class="user-avatar">
+            <span class="avatar-text">{{
+              userResponse?.name?.charAt(0) || "A"
+            }}</span>
+          </div>
+          <div class="user-info">
+            <div class="user-name">{{ userResponse?.name || "Admin" }}</div>
+            <div class="user-role">
+              {{ userResponse?.role_id?.name || "Quản trị viên" }}
+            </div>
+          </div>
+          <i class="fas fa-chevron-down ms-2 dropdown-icon"></i>
+        </button>
+        <ul class="dropdown-menu shadow" aria-labelledby="userDropdown">
+          <li>
+            <a class="dropdown-item" href="/profile">
+              <i class="fas fa-user"></i>
+              <span>Hồ sơ</span>
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item" href="/settings">
+              <i class="fas fa-cog"></i>
+              <span>Cài đặt</span>
+            </a>
+          </li>
+          <li><hr class="dropdown-divider" /></li>
+          <li>
+            <button class="dropdown-item text-danger" (click)="logout()">
+              <i class="fas fa-sign-out-alt"></i>
+              <span>Đăng xuất</span>
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</header>

@@ -43,12 +43,22 @@ export class LoginComponent {
 
         this.tokenService.setToken(token);
 
-        this.showSuccessModal();
+        this.authService.getUserDetail(token).subscribe({
+          next: (userReponse: any) => {
+            this.authService.saveUserToLocalStorage(userReponse);
 
-        setTimeout(() => {
-          this.hideModal();
-          this.router.navigate(['/dashboard']);
-        }, 2000);
+            this.showSuccessModal();
+
+            setTimeout(() => {
+              this.hideModal();
+              this.router.navigate(['/dashboard']);
+            }, 2000);
+          },
+          error: (error: any) => {
+            console.log('Error fetching user details:', error);
+            this.showErrorModal(error);
+          },
+        });
       },
       error: (error: any) => {
         this.showErrorModal(error);

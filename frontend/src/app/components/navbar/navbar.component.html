@@ -1,0 +1,76 @@
+<div class="sidebar">
+  <!-- Logo & Brand -->
+  <div class="sidebar-header">
+    <div class="brand-logo">
+      <i class="fas fa-leaf text-success"></i>
+    </div>
+    <h5 class="brand-title mb-0">EcoManager</h5>
+  </div>
+
+  <!-- Navigation Menu -->
+  <nav class="sidebar-nav">
+    <div class="nav-section">
+      <h6 class="nav-section-title">QUẢN LÝ CHUNG</h6>
+
+      <ul class="nav-items">
+        <li class="nav-item">
+          <a
+            class="nav-link active"
+            routerLink="/dashboard"
+            routerLinkActive="active"
+          >
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/interns" routerLinkActive="active">
+            <i class="fas fa-users"></i>
+            <span>Quản lý Intern</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/meetings" routerLinkActive="active">
+            <i class="fas fa-star"></i>
+            <span>Chấm điểm nhân viên</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <h6 class="nav-section-title">QUẢN LÝ SẢN PHẨM</h6>
+
+      <ul class="nav-items">
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/products" routerLinkActive="active">
+            <i class="fas fa-box"></i>
+            <span>Sản phẩm</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            routerLink="/assignments"
+            routerLinkActive="active"
+          >
+            <i class="fas fa-tasks"></i>
+            <span>Phân công</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Bottom Actions -->
+    <div class="sidebar-footer">
+      <a class="nav-link">
+        <i class="fas fa-cog"></i>
+        <span>Cài đặt</span>
+      </a>
+      <a class="nav-link text-danger" (click)="logout()">
+        <i class="fas fa-sign-out-alt"></i>
+        <span>Đăng xuất</span>
+      </a>
+    </div>
+  </nav>
+</div>

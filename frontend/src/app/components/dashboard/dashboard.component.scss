@@ -1,0 +1,212 @@
+.app-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #f8f9fa;
+}
+
+.main-content {
+  display: flex;
+  flex: 1;
+  position: relative;
+}
+
+.content {
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+// Welcome Section
+.welcome-section {
+  .welcome-title {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+  }
+}
+
+// Stat Cards
+.stat-card {
+  background: #fff;
+  border-radius: 12px;
+  border: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  .stat-card-body {
+    padding: 1.5rem;
+    display: flex;
+    align-items: flex-start;
+  }
+
+  .stat-card-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+
+    i {
+      font-size: 1.25rem;
+    }
+  }
+
+  .stat-card-info {
+    flex: 1;
+  }
+
+  .stat-card-title {
+    color: #6c757d;
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .stat-card-value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+  }
+
+  .stat-card-change {
+    font-size: 0.875rem;
+    margin-bottom: 0;
+
+    &.positive {
+      color: #28a745;
+    }
+
+    &.negative {
+      color: #dc3545;
+    }
+
+    i {
+      margin-right: 0.25rem;
+    }
+  }
+}
+
+// Soft Background Colors
+.bg-primary-soft {
+  background-color: rgba(13, 110, 253, 0.1);
+}
+
+.bg-success-soft {
+  background-color: rgba(40, 167, 69, 0.1);
+}
+
+.bg-info-soft {
+  background-color: rgba(23, 162, 184, 0.1);
+}
+
+.bg-warning-soft {
+  background-color: rgba(255, 193, 7, 0.1);
+}
+
+// Card Styles
+.card {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  margin-bottom: 1.5rem;
+
+  .card-header {
+    padding: 1.25rem 1.5rem;
+  }
+
+  .card-title {
+    color: #2c3e50;
+    font-weight: 600;
+  }
+}
+
+// Table Styles
+.table {
+  th {
+    font-weight: 600;
+    color: #6c757d;
+    font-size: 0.875rem;
+    padding: 1rem 1.5rem;
+  }
+
+  td {
+    padding: 1rem 1.5rem;
+    color: #2c3e50;
+  }
+}
+
+// Avatar
+.avatar-sm {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .avatar-initials {
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.875rem;
+  }
+}
+
+// Badges
+.badge {
+  padding: 0.5em 0.75em;
+  font-weight: 500;
+
+  &.bg-success-soft {
+    background-color: rgba(40, 167, 69, 0.1);
+  }
+
+  &.bg-warning-soft {
+    background-color: rgba(255, 193, 7, 0.1);
+  }
+}
+
+// Sidebar Toggle Button
+.sidebar-toggle {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 1030;
+  padding: 0.5rem;
+  border-radius: 8px;
+}
+
+// Admin Footer
+.admin-footer {
+  background: #fff;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  padding: 1rem 0;
+  margin-top: auto;
+
+  .nav-link {
+    color: #6c757d;
+    padding: 0.5rem 1rem;
+
+    &:hover {
+      color: #2c3e50;
+    }
+  }
+}
+
+// Responsive
+@media (max-width: 991.98px) {
+  .content {
+    padding: 1.5rem;
+  }
+
+  .stat-card .stat-card-body {
+    padding: 1.25rem;
+  }
+}

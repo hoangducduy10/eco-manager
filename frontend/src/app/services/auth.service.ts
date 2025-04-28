@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../environments/environment';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { RegisterDTO } from '../dtos/user/register.dto';
 import { Observable } from 'rxjs';
 import { LoginDTO } from '../dtos/user/login.dto';
@@ -10,9 +10,9 @@ import { UserResponse } from '../reponses/user/user.response';
   providedIn: 'root',
 })
 export class AuthService {
-  private apiBaseUrl = environment.apiBaseUrl;
   private apiRegister = `${environment.apiBaseUrl}/auth/register`;
   private apiLogin = `${environment.apiBaseUrl}/auth/login`;
+  private apiUserDetail = `${environment.apiBaseUrl}/auth/users/details`;
   private apiConfig = {
     headers: this.createHeaders(),
   };
@@ -23,6 +23,14 @@ export class AuthService {
     return new HttpHeaders({
       'Content-Type': 'application/json',
     });
+  }
+
+  getUserDetail(token: string): Observable<any> {
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    });
+    return this.http.post(this.apiUserDetail, {}, { headers });
   }
 
   register(registerDTO: RegisterDTO): Observable<any> {
@@ -38,7 +46,7 @@ export class AuthService {
       if (userResponse == null || !userResponse) {
         return;
       }
-
+      console.log('Saving user response:', userResponse);
       const userResponseJSON = JSON.stringify(userResponse);
       localStorage.setItem('user', userResponseJSON);
       console.log('User saved to local storage:', userResponseJSON);
@@ -55,7 +63,7 @@ export class AuthService {
       }
       // Parse the JSON string back into an object
       const userResponse = JSON.parse(userResponseJSON!);
-
+      console.log('Retrieved user from local storage:', userResponse);
       return userResponse;
     } catch (error) {
       console.log('Error retrieving user from local storage: ', error);
@@ -66,7 +74,7 @@ export class AuthService {
   removeUserFromLocalStorage() {
     try {
       localStorage.removeItem('user');
-      console.log('User removed from local storage');
+      console.log('User removed from local storage!');
     } catch (error) {
       console.error('Error removing user from local storage: ', error);
     }

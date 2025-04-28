@@ -1,0 +1,116 @@
+<div class="container-fluid">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Quản lý Intern</h1>
+      <p class="text-muted">Quản lý danh sách và thông tin của các intern</p>
+    </div>
+    <div class="page-actions">
+      <button class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i>
+        Thêm Intern mới
+      </button>
+    </div>
+  </div>
+
+  <!-- Search & Filter -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <div class="input-group">
+            <span class="input-group-text">
+              <i class="fas fa-search"></i>
+            </span>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Tìm kiếm theo tên..."
+              [(ngModel)]="fullName"
+              (ngModelChange)="onSearch()"
+            />
+          </div>
+        </div>
+        <div class="col-md-3">
+          <select
+            class="form-select"
+            [(ngModel)]="status"
+            (ngModelChange)="onSearch()"
+          >
+            <option [ngValue]="null">Trạng thái</option>
+            <option [ngValue]="'true'">Đang làm việc</option>
+            <option [ngValue]="'false'">Đã nghỉ</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <select class="form-select">
+            <option value="">Sắp xếp theo</option>
+            <option value="name">Tên</option>
+            <option value="date">Ngày bắt đầu</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interns Table -->
+  <div class="card">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="bg-light">
+          <tr>
+            <th>ID</th>
+            <th>Họ và tên</th>
+            <th>Email</th>
+            <th>Số điện thoại</th>
+            <th>Ngày bắt đầu</th>
+            <th>Trạng thái</th>
+            <th>Thao tác</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let intern of interns">
+            <td>{{ intern.id }}</td>
+            <td>{{ intern.full_name }}</td>
+            <td>{{ intern.email }}</td>
+            <td>{{ intern.phone_number }}</td>
+            <td>{{ intern.start_date }}</td>
+            <td>
+              <span
+                class="badge"
+                [ngClass]="{
+                  'bg-success-soft text-success': intern.status === 'Active',
+                  'bg-danger-soft text-danger': intern.status === 'Inactive'
+                }"
+                >{{
+                  intern.status === "Active" ? "Đang làm việc" : "Đã nghỉ"
+                }}</span
+              >
+            </td>
+            <td>
+              <button
+                class="btn btn-sm btn-light me-2"
+                (click)="detailIntern(intern)"
+              >
+                <i class="fas fa-edit"></i>
+              </button>
+              <button
+                class="btn btn-sm btn-light text-danger"
+                (click)="deleteIntern(intern.id)"
+              >
+                <i class="fas fa-trash"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <app-pagination
+    [currentPage]="currentPage"
+    [totalPages]="totalPages"
+    (pageChange)="onPageChange($event)"
+  ></app-pagination>
+</div>

@@ -1,10 +1,42 @@
 import { Routes } from '@angular/router';
+import { DashboardComponent } from './components/dashboard/dashboard.component';
+import { InternsComponent } from './components/interns/interns.component';
+import { MeetingsComponent } from './components/meetings/meetings.component';
+import { ProductsComponent } from './components/products/products.component';
+import { AssignmentsComponent } from './components/assignments/assignments.component';
 import { LoginComponent } from './components/login/login/login.component';
 import { RegisterComponent } from './components/register/register.component';
-import { DashboardComponent } from './components/dashboard/dashboard.component';
+import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
+  // Auth routes
+  { path: '', redirectTo: 'sign-in', pathMatch: 'full' },
   { path: 'sign-in', component: LoginComponent },
-  { path: 'register', component: RegisterComponent },
-  { path: 'dashboard', component: DashboardComponent },
+  { path: 'sign-up', component: RegisterComponent },
+
+  {
+    path: 'dashboard',
+    component: DashboardComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'interns',
+    component: InternsComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'meetings',
+    component: MeetingsComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'products',
+    component: ProductsComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'assignments',
+    component: AssignmentsComponent,
+    canActivate: [authGuard],
+  },
 ];
