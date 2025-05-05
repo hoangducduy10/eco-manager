@@ -7,11 +7,14 @@ import { Intern } from '../../models/intern';
 import { InternResponse } from '../../reponses/intern/intern.response';
 import { PaginationComponent } from '../pagination/pagination.component';
 import { InternDialogComponent } from './intern-dialog/intern-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-interns',
   standalone: true,
-  imports: [CommonModule, FormsModule, PaginationComponent],
+  imports: [CommonModule, FormsModule, PaginationComponent, MatTooltipModule],
   templateUrl: './interns.component.html',
   styleUrl: './interns.component.scss',
 })
@@ -25,7 +28,8 @@ export class InternsComponent implements OnInit {
 
   constructor(
     private internService: InternService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -88,32 +92,39 @@ export class InternsComponent implements OnInit {
   }
 
   deleteIntern(id: number): void {
-    if (confirm('Bạn có chắc chắn muốn xóa intern này không?')) {
-      this.internService.deleteIntern(id).subscribe({
-        next: () => {
-          this.snackBar.open('Xóa intern thành công!', 'Đóng', {
-            duration: 3000,
-            horizontalPosition: 'right',
-            verticalPosition: 'top',
-          });
-          this.getInterns(
-            this.fullName,
-            this.status,
-            this.currentPage,
-            this.itemsPerPage
-          );
-        },
-        error: (error) => {
-          this.snackBar.open('Lỗi khi xóa intern.', 'Đóng', {
-            duration: 3000,
-            horizontalPosition: 'right',
-            verticalPosition: 'top',
-            panelClass: ['error-snackbar'],
-          });
-          console.error('Lỗi khi xóa intern:', error);
-        },
-      });
-    }
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '400px',
+      data: { message: 'Bạn có chắc chắn muốn xóa intern này không?' },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.internService.deleteIntern(id).subscribe({
+          next: () => {
+            this.snackBar.open('Đã xóa intern thành công!', 'Đóng', {
+              duration: 3000,
+              horizontalPosition: 'right',
+              verticalPosition: 'top',
+            });
+            this.getInterns(
+              this.fullName,
+              this.status,
+              this.currentPage,
+              this.itemsPerPage
+            );
+          },
+          error: (error) => {
+            this.snackBar.open('Có lỗi xảy ra khi xóa intern.', 'Đóng', {
+              duration: 3000,
+              horizontalPosition: 'right',
+              verticalPosition: 'top',
+              panelClass: ['error-snackbar'],
+            });
+            console.error('Lỗi khi xóa intern:', error);
+          },
+        });
+      }
+    });
   }
 
   onPageChange(page: number | string) {

@@ -6,7 +6,7 @@
       <p class="text-muted">Quản lý danh sách và thông tin của các intern</p>
     </div>
     <div class="page-actions">
-      <button class="btn btn-primary">
+      <button class="btn btn-primary" (click)="openInternDialog()">
         <i class="fas fa-plus me-2"></i>
         Thêm Intern mới
       </button>
@@ -91,12 +91,14 @@
               <button
                 class="btn btn-sm btn-light me-2"
                 (click)="detailIntern(intern)"
+                matTooltip="Chỉnh sửa"
               >
                 <i class="fas fa-edit"></i>
               </button>
               <button
                 class="btn btn-sm btn-light text-danger"
                 (click)="deleteIntern(intern.id)"
+                matTooltip="Xóa"
               >
                 <i class="fas fa-trash"></i>
               </button>

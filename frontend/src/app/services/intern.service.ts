@@ -44,6 +44,8 @@ export class InternService {
   }
 
   deleteIntern(id: number) {
-    return this.http.delete(`${this.apiGetInterns}/delete/${id}`);
+    return this.http.delete(`${this.apiGetInterns}/delete/${id}`, {
+      responseType: 'text',
+    });
   }
 }

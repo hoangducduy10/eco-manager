@@ -1,45 +1,89 @@
 <div class="dialog-container">
-  <h2 mat-dialog-title>{{ intern.id ? "Chỉnh sửa Intern" : "Thêm Intern" }}</h2>
+  <h2 mat-dialog-title>{{ data ? "Chỉnh sửa Intern" : "Thêm Intern" }}</h2>
   <mat-dialog-content>
-    <form>
+    <form [formGroup]="internForm">
       <mat-form-field class="w-100">
         <mat-label>Họ và Tên</mat-label>
         <input
           matInput
-          [(ngModel)]="intern.full_name"
-          name="full_name"
-          required
+          formControlName="full_name"
+          placeholder="Nhập họ và tên"
         />
+        <mat-error
+          *ngIf="
+            internForm.get('full_name')?.invalid &&
+            internForm.get('full_name')?.touched
+          "
+        >
+          {{ getErrorMessage("full_name") }}
+        </mat-error>
       </mat-form-field>
+
       <mat-form-field class="w-100">
         <mat-label>Email</mat-label>
-        <input matInput [(ngModel)]="intern.email" name="email" required />
+        <input matInput formControlName="email" placeholder="Nhập email" />
+        <mat-error
+          *ngIf="
+            internForm.get('email')?.invalid && internForm.get('email')?.touched
+          "
+        >
+          {{ getErrorMessage("email") }}
+        </mat-error>
       </mat-form-field>
+
       <mat-form-field class="w-100">
         <mat-label>Số điện thoại</mat-label>
         <input
           matInput
-          [(ngModel)]="intern.phone_number"
-          name="phone_number"
-          required
+          formControlName="phone_number"
+          placeholder="Nhập số điện thoại"
         />
+        <mat-error
+          *ngIf="
+            internForm.get('phone_number')?.invalid &&
+            internForm.get('phone_number')?.touched
+          "
+        >
+          {{ getErrorMessage("phone_number") }}
+        </mat-error>
       </mat-form-field>
+
       <mat-form-field class="w-100">
         <mat-label>Ngày bắt đầu</mat-label>
         <input
           matInput
-          type="date"
-          [(ngModel)]="intern.start_date"
-          name="start_date"
-          required
+          [matDatepicker]="picker"
+          formControlName="start_date"
+          [min]="minDate"
+          [max]="maxDate"
+          placeholder="Chọn ngày bắt đầu"
         />
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+        <mat-error
+          *ngIf="
+            internForm.get('start_date')?.invalid &&
+            internForm.get('start_date')?.touched
+          "
+        >
+          {{ getErrorMessage("start_date") }}
+        </mat-error>
       </mat-form-field>
+
       <mat-form-field class="w-100">
         <mat-label>Trạng thái</mat-label>
-        <mat-select [(ngModel)]="intern.status" name="status" required>
+        <mat-select formControlName="status">
           <mat-option value="Active">Đang làm việc</mat-option>
           <mat-option value="Inactive">Đã nghỉ</mat-option>
         </mat-select>
+        <mat-error
+          *ngIf="
+            internForm.get('status')?.invalid &&
+            internForm.get('status')?.touched
+          "
+        >
+          {{ getErrorMessage("status") }}
+        </mat-error>
       </mat-form-field>
     </form>
   </mat-dialog-content>
@@ -49,12 +93,7 @@
       mat-raised-button
       color="primary"
       (click)="save()"
-      [disabled]="
-        !intern.full_name ||
-        !intern.email ||
-        !intern.phone_number ||
-        !intern.start_date
-      "
+      [disabled]="internForm.invalid"
     >
       Lưu
     </button>
