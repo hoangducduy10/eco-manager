@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface IInternService {
+
     Page<InternResponse> getInterns(String fullName, Boolean active, Pageable pageable);
 
     InternResponse getInternById(Long id) throws Exception;

@@ -77,7 +77,7 @@ public class InternController {
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<String> deleteIntern(@PathVariable Long id) {
+    public ResponseEntity<?> deleteIntern(@PathVariable Long id) {
         internServiceImpl.deleteIntern(id);
         return ResponseEntity.ok("Intern deleted successfully");
     }

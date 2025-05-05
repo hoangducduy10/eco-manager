@@ -30,12 +30,15 @@ public class InternResponse {
     private String status;
 
     public static InternResponse fromIntern(Intern intern) {
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         return InternResponse.builder()
                 .id(intern.getId())
                 .fullName(intern.getFullName())
                 .email(intern.getEmail())
                 .phoneNumber(intern.getPhoneNumber())
-                .startDate(intern.getCreatedAt() != null ? intern.getCreatedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : null)
+                .startDate(intern.getStartDate() != null
+                        ? intern.getStartDate().format(fmt)
+                        : null)
                 .status(intern.getActive() ? "Active" : "Inactive")
                 .build();
     }

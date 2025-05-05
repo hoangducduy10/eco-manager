@@ -8,7 +8,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -28,5 +27,11 @@ public class InternDTO {
     @NotBlank(message = "Phone number is required!")
     @JsonProperty("phone_number")
     private String phoneNumber;
+
+    @JsonProperty("start_date")
+    private String startDate;
+
+    @JsonProperty("status")
+    private String status;
 
 }

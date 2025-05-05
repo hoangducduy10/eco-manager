@@ -13,6 +13,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
 @Service
 @RequiredArgsConstructor
 public class InternServiceImpl implements IInternService {
@@ -43,7 +46,12 @@ public class InternServiceImpl implements IInternService {
 
         Intern intern = modelMapper.map(internDTO, Intern.class);
         intern.setId(null);
-        intern.setActive(true);
+        intern.setActive("Active".equalsIgnoreCase(internDTO.getStatus()));
+
+        if (internDTO.getStartDate() != null) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            intern.setStartDate(LocalDate.parse(internDTO.getStartDate(), formatter));
+        }
 
         return InternResponse.fromIntern(internRepository.save(intern));
     }
@@ -58,8 +66,19 @@ public class InternServiceImpl implements IInternService {
         }
 
         modelMapper.map(internDTO, existingIntern);
+
+        if (internDTO.getStatus() != null) {
+            existingIntern.setActive("Active".equalsIgnoreCase(internDTO.getStatus()));
+        }
+
+        if (internDTO.getStartDate() != null) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            existingIntern.setStartDate(LocalDate.parse(internDTO.getStartDate(), formatter));
+        }
+
         return InternResponse.fromIntern(internRepository.save(existingIntern));
     }
+
 
     @Override
     public void deleteIntern(Long id) {

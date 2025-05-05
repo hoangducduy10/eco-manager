@@ -12,6 +12,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
+
 @Entity
 @Table(name = "interns")
 @AllArgsConstructor
@@ -33,6 +35,9 @@ public class Intern extends BaseEntity {
 
     @Column(name = "phone_number", length = 10, nullable = false)
     private String phoneNumber;
+
+    @Column(name = "start_date")
+    private LocalDate startDate;
 
     @Column(name = "is_active")
     private Boolean active;
