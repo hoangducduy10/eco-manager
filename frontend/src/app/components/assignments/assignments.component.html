@@ -1,1 +1,99 @@
-<p>assignments works!</p>
+<div class="container-fluid">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Quản lý Phân công</h1>
+      <p class="text-muted">
+        Quản lý danh sách và thông tin phân công nhân viên vào sản phẩm
+      </p>
+    </div>
+    <div class="page-actions">
+      <button class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i>
+        Thêm Phân công mới
+      </button>
+    </div>
+  </div>
+  <!-- Search & Filter -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <div class="input-group">
+            <span class="input-group-text">
+              <i class="fas fa-search"></i>
+            </span>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Tìm kiếm theo sản phẩm..."
+            />
+          </div>
+        </div>
+        <div class="col-md-3">
+          <select class="form-select">
+            <option value="">Tất cả trạng thái</option>
+            <option value="assigned">Đã phân công</option>
+            <option value="completed">Đã hoàn thành</option>
+            <option value="pending">Chưa thực hiện</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <select class="form-select">
+            <option value="">Sắp xếp theo</option>
+            <option value="product">Sản phẩm</option>
+            <option value="employee">Nhân viên</option>
+            <option value="created_at">Ngày tạo</option>
+            <option value="updated_at">Ngày cập nhật</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Assignments Table -->
+  <div class="card">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="bg-light">
+          <tr>
+            <th>ID</th>
+            <th>Sản phẩm</th>
+            <th>Nhân viên</th>
+            <th>Vai trò</th>
+            <th>Ngày tạo</th>
+            <th>Ngày cập nhật</th>
+            <th>Thao tác</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Assignment 1 -->
+          <tr>
+            <td>1</td>
+            <td>
+              <div class="d-flex align-items-center fw-medium">Sản phẩm A</div>
+            </td>
+            <td>Nguyen Van A</td>
+            <td>Developer</td>
+            <td>04/05/2025</td>
+            <td>05/05/2025</td>
+            <td>
+              <button class="btn btn-sm btn-light me-2" title="Chỉnh sửa">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="btn btn-sm btn-light text-danger" title="Xóa">
+                <i class="fas fa-trash"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <!-- Pagination -->
+  <!-- <app-pagination
+    [totalItems]="totalItems"
+    [itemsPerPage]="itemsPerPage"
+    [currentPage]="currentPage"
+    (pageChange)="onPageChange($event)"
+  ></app-pagination> -->
+</div>

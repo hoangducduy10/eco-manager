@@ -3,6 +3,8 @@ import { UserResponse } from '../../reponses/user/user.response';
 import { AuthService } from '../../services/auth.service';
 import { TokenService } from '../../services/token.service';
 import { Router } from '@angular/router';
+import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-header',
@@ -17,7 +19,8 @@ export class HeaderComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private tokenService: TokenService,
-    private route: Router
+    private route: Router,
+    private dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -29,5 +32,18 @@ export class HeaderComponent implements OnInit {
     this.tokenService.removeToken();
     this.userResponse = null;
     this.route.navigate(['/sign-in']);
+  }
+
+  confirmLogout() {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '400px',
+      data: { message: 'Bạn có chắc chắn muốn đăng xuất?' },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.logout();
+      }
+    });
   }
 }

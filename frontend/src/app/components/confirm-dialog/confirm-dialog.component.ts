@@ -17,7 +17,9 @@ import {
     </mat-dialog-content>
     <mat-dialog-actions align="end">
       <button mat-button (click)="onNoClick()">Hủy</button>
-      <button mat-raised-button color="warn" (click)="onYesClick()">Xóa</button>
+      <button mat-raised-button color="warn" (click)="onYesClick()">
+        Xác nhận
+      </button>
     </mat-dialog-actions>
   `,
 })
