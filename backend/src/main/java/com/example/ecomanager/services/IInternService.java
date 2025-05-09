@@ -15,6 +15,6 @@ public interface IInternService {
 
     InternResponse updateIntern(Long id, InternDTO internDTO) throws Exception;
 
-    void deleteIntern(Long id);
+    void deleteIntern(Long id) throws Exception;
 
 }

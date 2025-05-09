@@ -81,9 +81,10 @@ public class InternServiceImpl implements IInternService {
 
 
     @Override
-    public void deleteIntern(Long id) {
+    public void deleteIntern(Long id) throws DataNotFoundException {
         Intern intern = internRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Intern not found with id: " + id));
+                .orElseThrow(() -> new DataNotFoundException("Intern not found with id: " + id));
+
         internRepository.delete(intern);
     }
 

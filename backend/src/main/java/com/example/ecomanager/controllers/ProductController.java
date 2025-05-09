@@ -1,10 +1,10 @@
 package com.example.ecomanager.controllers;
 
-import com.example.ecomanager.dtos.InternDTO;
-import com.example.ecomanager.exceptions.DataNotFoundException;
-import com.example.ecomanager.responses.InternListResponse;
-import com.example.ecomanager.responses.InternResponse;
-import com.example.ecomanager.services.impl.InternServiceImpl;
+import com.example.ecomanager.dtos.ProductDTO;
+import com.example.ecomanager.enums.ProductStatus;
+import com.example.ecomanager.responses.ProductListResponse;
+import com.example.ecomanager.responses.ProductResponse;
+import com.example.ecomanager.services.IProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -24,42 +24,45 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
-@RequestMapping("${api.prefix}/interns")
+@RequestMapping("${api.prefix}/products")
 @RequiredArgsConstructor
-public class InternController {
+public class ProductController {
 
-    private final InternServiceImpl internServiceImpl;
+    private final IProductService productService;
 
     @GetMapping
-    public ResponseEntity<InternListResponse> getInterns(
+    public ResponseEntity<ProductListResponse> getProducts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(required = false) String fullName,
-            @RequestParam(required = false) Boolean active
-    ) {
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) ProductStatus status
+            ){
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by("id").ascending());
-        Page<InternResponse> internPage = internServiceImpl.getInterns(fullName, active, pageRequest);
-        List<InternResponse> internList = internPage.getContent();
-        return ResponseEntity.ok(InternListResponse.builder()
-                .interns(internList)
-                .totalPages(internPage.getTotalPages())
+        Page<ProductResponse> productPage = productService.getProducts(name, status, pageRequest);
+        List<ProductResponse> productList = productPage.getContent();
+
+        return ResponseEntity.ok(ProductListResponse.builder()
+                .products(productList)
+                .totalPages(productPage.getTotalPages())
                 .build());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<InternResponse> getInternById(@PathVariable Long id) throws Exception {
-        InternResponse internResponse = internServiceImpl.getInternById(id);
-        return ResponseEntity.ok(internResponse);
+    public ResponseEntity<ProductResponse> getProductById(@PathVariable Long id) throws Exception {
+        ProductResponse productResponse = productService.getProductById(id);
+        return ResponseEntity.ok(productResponse);
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> createIntern(
-            @Valid @RequestBody InternDTO internDTO,
+    public ResponseEntity<?> createProduct(
+            @Valid @RequestBody ProductDTO productDTO,
             BindingResult bindingResult
-    ) throws Exception {
+            ) throws Exception {
         if(bindingResult.hasErrors()){
             List<String> errors = bindingResult.getFieldErrors()
                     .stream()
@@ -68,16 +71,16 @@ public class InternController {
             return ResponseEntity.badRequest().body(errors);
         }
 
-        InternResponse internResponse = internServiceImpl.createIntern(internDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(internResponse);
+        ProductResponse productResponse = productService.createProduct(productDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(productResponse);
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateIntern(
+    public ResponseEntity<?> updateProduct(
             @PathVariable Long id,
-            @Valid @RequestBody InternDTO internDTO,
+            @Valid @RequestBody ProductDTO productDTO,
             BindingResult bindingResult
-    ) throws Exception {
+            ) throws Exception {
         if(bindingResult.hasErrors()){
             List<String> errors = bindingResult.getFieldErrors()
                     .stream()
@@ -86,14 +89,16 @@ public class InternController {
             return ResponseEntity.badRequest().body(errors);
         }
 
-        InternResponse internResponse = internServiceImpl.updateIntern(id, internDTO);
-        return ResponseEntity.ok(internResponse);
+        ProductResponse productResponse = productService.updateProduct(id, productDTO);
+        return ResponseEntity.ok(productResponse);
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> deleteIntern(@PathVariable Long id) throws Exception {
-        internServiceImpl.deleteIntern(id);
-        return ResponseEntity.ok("Intern deleted successfully");
+    public ResponseEntity<?> deleteProduct(@PathVariable Long id) throws Exception {
+        productService.deleteProduct(id);
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Product deleted successfully");
+        return ResponseEntity.ok(response);
     }
 
 }
