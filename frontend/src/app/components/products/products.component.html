@@ -6,7 +6,7 @@
       <p class="text-muted">Quản lý danh sách và thông tin của các sản phẩm</p>
     </div>
     <div class="page-actions">
-      <button class="btn btn-primary">
+      <button class="btn btn-primary" (click)="openProductDialog()">
         <i class="fas fa-plus me-2"></i>
         Thêm Sản phẩm mới
       </button>
@@ -25,15 +25,24 @@
             <input
               type="text"
               class="form-control"
+              [(ngModel)]="name"
+              (ngModelChange)="onSearch()"
               placeholder="Tìm kiếm theo tên..."
             />
           </div>
         </div>
         <div class="col-md-3">
-          <select class="form-select">
-            <option value="">Tất cả trạng thái</option>
-            <option value="active">Đang hoạt động</option>
-            <option value="inactive">Ngừng hoạt động</option>
+          <select
+            class="form-select"
+            [(ngModel)]="status"
+            (ngModelChange)="onSearch()"
+          >
+            <option [ngValue]="null">Trạng thái</option>
+            <option [ngValue]="productStatus.DEVELOPING">
+              Đang phát triển
+            </option>
+            <option [ngValue]="productStatus.COMPLETED">Đã hoàn thành</option>
+            <option [ngValue]="productStatus.PAUSED">Đã dừng</option>
           </select>
         </div>
         <div class="col-md-3">
@@ -57,31 +66,55 @@
             <th>ID</th>
             <th>Tên sản phẩm</th>
             <th>Mô tả</th>
-            <th>Ngày tạo</th>
-            <th>Ngày cập nhật</th>
+            <th>Ngày bắt đầu</th>
+            <th>Trạng thái</th>
             <th>Thao tác</th>
           </tr>
         </thead>
         <tbody>
-          <!-- Product 1 -->
-          <tr>
-            <td>1</td>
+          <tr *ngFor="let product of products">
+            <td>{{ product.id }}</td>
             <td>
-              <div class="d-flex align-items-center fw-medium">Product 1</div>
+              <div class="fw-medium">{{ product.name }}</div>
             </td>
             <td>
-              <span class="text-muted"
-                >Điện thoại Apple iPhone 13 chính hãng, màu xanh, bộ nhớ
-                128GB...</span
+              <span class="text-muted">{{ product.description }}</span>
+            </td>
+            <td>{{ product.created_at | date : "dd/MM/yyyy" }}</td>
+            <td>
+              <span
+                class="badge"
+                [ngClass]="{
+                  'bg-success-soft text-success':
+                    product.status === productStatus.COMPLETED,
+                  'bg-warning-soft text-warning':
+                    product.status === productStatus.DEVELOPING,
+                  'bg-danger-soft text-danger':
+                    product.status === productStatus.PAUSED
+                }"
               >
+                {{
+                  product.status === productStatus.COMPLETED
+                    ? "Đã hoàn thành"
+                    : product.status === productStatus.DEVELOPING
+                    ? "Đang phát triển"
+                    : "Đã dừng"
+                }}
+              </span>
             </td>
-            <td>15/01/2023</td>
-            <td>20/03/2023</td>
             <td>
-              <button class="btn btn-sm btn-light me-2" title="Chỉnh sửa">
+              <button
+                class="btn btn-sm btn-light me-2"
+                (click)="detailProduct(product)"
+                matTooltip="Chỉnh sửa"
+              >
                 <i class="fas fa-edit"></i>
               </button>
-              <button class="btn btn-sm btn-light text-danger" title="Xóa">
+              <button
+                class="btn btn-sm btn-light text-danger"
+                (click)="deleteProduct(product.id)"
+                matTooltip="Xóa"
+              >
                 <i class="fas fa-trash"></i>
               </button>
             </td>
@@ -92,10 +125,9 @@
   </div>
 
   <!-- Pagination -->
-  <!-- <app-pagination
-    [totalItems]="totalItems"
-    [itemsPerPage]="itemsPerPage"
+  <app-pagination
     [currentPage]="currentPage"
+    [totalPages]="totalPages"
     (pageChange)="onPageChange($event)"
-  ></app-pagination> -->
+  ></app-pagination>
 </div>

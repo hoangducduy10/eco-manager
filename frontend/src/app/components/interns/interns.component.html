@@ -71,7 +71,9 @@
         <tbody>
           <tr *ngFor="let intern of interns">
             <td>{{ intern.id }}</td>
-            <td>{{ intern.full_name }}</td>
+            <td class="fw-medium">
+              {{ intern.full_name }}
+            </td>
             <td>{{ intern.email }}</td>
             <td>{{ intern.phone_number }}</td>
             <td>{{ intern.start_date }}</td>

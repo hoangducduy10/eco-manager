@@ -53,6 +53,28 @@
   }
 }
 
+// Badges
+.badge {
+  padding: 0.5em 0.75em;
+  font-weight: 500;
+  border-radius: 6px;
+
+  &.bg-success-soft {
+    background-color: rgba(40, 167, 69, 0.1);
+    color: #28a745;
+  }
+
+  &.bg-warning-soft {
+    background-color: rgba(255, 193, 7, 0.1);
+    color: #ffc107;
+  }
+
+  &.bg-danger-soft {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+  }
+}
+
 // Form Controls
 .form-control,
 .form-select {

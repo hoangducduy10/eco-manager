@@ -1,1 +1,96 @@
-<p>product-dialog works!</p>
+<div class="dialog-container">
+  <h2 mat-dialog-title>
+    {{ data ? "Chỉnh sửa Sản phẩm" : "Thêm Sản phẩm mới" }}
+  </h2>
+  <mat-dialog-content>
+    <form [formGroup]="productForm">
+      <mat-form-field class="w-100">
+        <mat-label>Tên sản phẩm</mat-label>
+        <input
+          matInput
+          formControlName="name"
+          placeholder="Nhập tên sản phẩm"
+        />
+        <mat-error
+          *ngIf="
+            productForm.get('name')?.invalid && productForm.get('name')?.touched
+          "
+        >
+          {{ getErrorMessage("name") }}
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field class="w-100">
+        <mat-label>Mô tả</mat-label>
+        <textarea
+          matInput
+          formControlName="description"
+          placeholder="Nhập mô tả sản phẩm"
+          rows="3"
+        ></textarea>
+        <mat-error
+          *ngIf="
+            productForm.get('description')?.invalid &&
+            productForm.get('description')?.touched
+          "
+        >
+          {{ getErrorMessage("description") }}
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field class="w-100">
+        <mat-label>Ngày bắt đầu</mat-label>
+        <input
+          matInput
+          [matDatepicker]="picker"
+          formControlName="created_at"
+          [min]="minDate"
+          [max]="maxDate"
+          placeholder="Chọn ngày bắt đầu"
+        />
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+        <mat-error
+          *ngIf="
+            productForm.get('created_at')?.invalid &&
+            productForm.get('created_at')?.touched
+          "
+        >
+          {{ getErrorMessage("created_at") }}
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field class="w-100">
+        <mat-label>Trạng thái</mat-label>
+        <mat-select formControlName="status">
+          <mat-option [value]="productStatus.DEVELOPING"
+            >Đang phát triển</mat-option
+          >
+          <mat-option [value]="productStatus.COMPLETED"
+            >Đã hoàn thành</mat-option
+          >
+          <mat-option [value]="productStatus.PAUSED">Đã dừng</mat-option>
+        </mat-select>
+        <mat-error
+          *ngIf="
+            productForm.get('status')?.invalid &&
+            productForm.get('status')?.touched
+          "
+        >
+          {{ getErrorMessage("status") }}
+        </mat-error>
+      </mat-form-field>
+    </form>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="cancel()">Hủy</button>
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="save()"
+      [disabled]="productForm.invalid"
+    >
+      Lưu
+    </button>
+  </mat-dialog-actions>
+</div>

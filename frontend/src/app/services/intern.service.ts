@@ -39,8 +39,8 @@ export class InternService {
     return this.http.put<Intern>(`${this.apiGetInterns}/update/${id}`, intern);
   }
 
-  getInternById(id: number) {
-    return this.http.get(`${this.apiGetInterns}/${id}`);
+  getInternById(id: number): Observable<Intern> {
+    return this.http.get<Intern>(`${this.apiGetInterns}/${id}`);
   }
 
   deleteIntern(id: number) {
