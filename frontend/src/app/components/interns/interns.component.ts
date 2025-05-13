@@ -10,6 +10,14 @@ import { InternDialogComponent } from './intern-dialog/intern-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import {
+  debounceTime,
+  distinctUntilChanged,
+  Subject,
+  Subscription,
+  switchMap,
+  tap,
+} from 'rxjs';
 
 @Component({
   selector: 'app-interns',
@@ -26,6 +34,13 @@ export class InternsComponent implements OnInit {
   fullName: string = '';
   status: boolean | null = null;
 
+  private searchTerms = new Subject<{
+    fullName: string;
+    status: boolean | null;
+    page: number;
+  }>();
+  private searchSubscription?: Subscription;
+
   constructor(
     private internService: InternService,
     private snackBar: MatSnackBar,
@@ -33,43 +48,55 @@ export class InternsComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.getInterns(
-      this.fullName,
-      this.status,
-      this.currentPage,
-      this.itemsPerPage
-    );
+    this.searchSubscription = this.searchTerms
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(
+          (a, b) =>
+            a.fullName === b.fullName &&
+            a.status === b.status &&
+            a.page === b.page
+        ),
+        switchMap((params) =>
+          this.internService.getInterns(
+            params.fullName,
+            params.status,
+            params.page,
+            this.itemsPerPage
+          )
+        )
+      )
+      .subscribe({
+        next: (response) => {
+          this.interns = response.interns;
+          this.totalPages = response.totalPages;
+        },
+        error: (error) => {
+          console.error('Error fetching interns:', error);
+        },
+      });
+
+    this.search();
   }
 
-  getInterns(
-    fullName: string,
-    active: boolean | null,
-    page: number,
-    size: number
-  ) {
-    this.internService.getInterns(fullName, active, page, size).subscribe({
-      next: (response) => {
-        this.interns = response.interns;
-        this.totalPages = response.totalPages;
-      },
-      error: (error) => {
-        console.error('Error fetching interns:', error);
-      },
-    });
+  ngOnDestroy(): void {
+    this.searchSubscription?.unsubscribe();
   }
 
   detailIntern(intern: InternResponse) {
     this.openInternDialog(intern);
   }
 
-  onSearch() {
-    this.currentPage = 0;
-    this.getInterns(
-      this.fullName,
-      this.status,
-      this.currentPage,
-      this.itemsPerPage
-    );
+  search(resetPage: boolean = false) {
+    if (resetPage) {
+      this.currentPage = 0;
+    }
+
+    this.searchTerms.next({
+      fullName: this.fullName,
+      status: this.status,
+      page: this.currentPage,
+    });
   }
 
   openInternDialog(intern?: InternResponse): void {
@@ -79,15 +106,7 @@ export class InternsComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        // Làm mới danh sách sau khi thêm hoặc cập nhật
-        this.getInterns(
-          this.fullName,
-          this.status,
-          this.currentPage,
-          this.itemsPerPage
-        );
-      }
+      if (result) this.search();
     });
   }
 
@@ -106,12 +125,7 @@ export class InternsComponent implements OnInit {
               horizontalPosition: 'right',
               verticalPosition: 'top',
             });
-            this.getInterns(
-              this.fullName,
-              this.status,
-              this.currentPage,
-              this.itemsPerPage
-            );
+            this.search();
           },
           error: (error) => {
             this.snackBar.open('Có lỗi xảy ra khi xóa intern.', 'Đóng', {
@@ -130,12 +144,7 @@ export class InternsComponent implements OnInit {
   onPageChange(page: number | string) {
     if (typeof page === 'number') {
       this.currentPage = page - 1;
-      this.getInterns(
-        this.fullName,
-        this.status,
-        this.currentPage,
-        this.itemsPerPage
-      );
+      this.search();
     }
   }
 }

@@ -11,6 +11,13 @@ import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ProductStatus } from '../../models/product-status.enum';
+import {
+  debounceTime,
+  distinctUntilChanged,
+  Subject,
+  Subscription,
+  switchMap,
+} from 'rxjs';
 
 @Component({
   selector: 'app-products',
@@ -27,6 +34,15 @@ export class ProductsComponent implements OnInit {
   totalPages: number = 0;
   name: string = '';
   status: ProductStatus | null = null;
+
+  private searchTerms = new Subject<{
+    name: string;
+    status: ProductStatus | null;
+    page: number;
+  }>();
+
+  private searchSubscription?: Subscription;
+
   constructor(
     private productService: ProductService,
     private snackBar: MatSnackBar,
@@ -34,12 +50,37 @@ export class ProductsComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.getProducts(
-      this.name,
-      this.status,
-      this.currentPage,
-      this.itemsPerPage
-    );
+    this.searchSubscription = this.searchTerms
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(
+          (a, b) =>
+            a.name === b.name && a.status === b.status && a.page === b.page
+        ),
+        switchMap((params) =>
+          this.productService.getProducts(
+            params.name,
+            params.status,
+            params.page,
+            this.itemsPerPage
+          )
+        )
+      )
+      .subscribe({
+        next: (response) => {
+          this.products = response.products;
+          this.totalPages = response.totalPages;
+        },
+        error: (error) => {
+          console.error('Error fetching products:', error);
+        },
+      });
+
+    this.search();
+  }
+
+  ngOnDestroy(): void {
+    this.searchSubscription?.unsubscribe();
   }
 
   getProducts(
@@ -63,14 +104,15 @@ export class ProductsComponent implements OnInit {
     this.openProductDialog(product);
   }
 
-  onSearch() {
-    this.currentPage = 0;
-    this.getProducts(
-      this.name,
-      this.status,
-      this.currentPage,
-      this.itemsPerPage
-    );
+  search(resetPage: boolean = false) {
+    if (resetPage) {
+      this.currentPage = 0;
+    }
+    this.searchTerms.next({
+      name: this.name,
+      status: this.status,
+      page: this.currentPage,
+    });
   }
 
   openProductDialog(product?: ProductResponse): void {
@@ -80,14 +122,7 @@ export class ProductsComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        this.getProducts(
-          this.name,
-          this.status,
-          this.currentPage,
-          this.itemsPerPage
-        );
-      }
+      if (result) this.search();
     });
   }
 
@@ -106,12 +141,7 @@ export class ProductsComponent implements OnInit {
               horizontalPosition: 'right',
               verticalPosition: 'top',
             });
-            this.getProducts(
-              this.name,
-              this.status,
-              this.currentPage,
-              this.itemsPerPage
-            );
+            this.search();
           },
           error: (error) => {
             this.snackBar.open('Có lỗi xảy ra khi xóa sản phẩm.', 'Đóng', {
@@ -130,12 +160,7 @@ export class ProductsComponent implements OnInit {
   onPageChange(page: number | string) {
     if (typeof page === 'number') {
       this.currentPage = page - 1;
-      this.getProducts(
-        this.name,
-        this.status,
-        this.currentPage,
-        this.itemsPerPage
-      );
+      this.search();
     }
   }
 }
