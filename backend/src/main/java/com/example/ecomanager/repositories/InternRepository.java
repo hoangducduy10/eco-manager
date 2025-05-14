@@ -16,10 +16,10 @@ public interface InternRepository extends JpaRepository<Intern, Long> {
     Optional<Intern> findByEmail(String email);
 
     @Query("""
-            SELECT i FROM Intern i 
-            WHERE (:fullName IS NULL OR :fullName = '' OR LOWER(i.fullName) LIKE LOWER(CONCAT('%', :fullName, '%'))) 
-            AND (:active IS NULL OR i.active = :active)
-            """)
+        SELECT i FROM Intern i 
+        WHERE (:fullName IS NULL OR :fullName = '' OR LOWER(i.fullName) LIKE LOWER(CONCAT('%', :fullName, '%'))) 
+        AND (:active IS NULL OR i.active = :active)
+    """)
     Page<Intern> findByFullNameAndActive(@Param("fullName") String fullName,
                                          @Param("active") Boolean active,
                                          Pageable pageable);

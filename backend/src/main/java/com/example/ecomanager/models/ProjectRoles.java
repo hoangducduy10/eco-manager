@@ -1,6 +1,6 @@
 package com.example.ecomanager.models;
 
-import com.example.ecomanager.enums.ProductStatus;
+import com.example.ecomanager.enums.EmployeeRole;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -30,6 +30,6 @@ public class ProjectRoles {
 
     @Column(name = "name", nullable = false)
     @Enumerated(EnumType.STRING)
-    private ProductStatus name;
+    private EmployeeRole name;
 
 }
