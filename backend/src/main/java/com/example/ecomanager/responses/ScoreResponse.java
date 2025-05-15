@@ -10,7 +10,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @Builder
-public class ScoreResponse {
+public class ScoreResponse extends BaseResponse{
 
     private Long id;
 

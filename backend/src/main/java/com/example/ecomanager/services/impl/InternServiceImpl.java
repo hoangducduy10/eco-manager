@@ -30,7 +30,6 @@ public class InternServiceImpl implements IInternService {
     }
 
     @Override
-    @Transactional
     public InternResponse getInternById(Long id) throws Exception {
         Intern intern = internRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoundException("Intern not found with id: " + id));

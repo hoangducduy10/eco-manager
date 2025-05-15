@@ -23,7 +23,7 @@ public class ScoreDTO {
     private Long meeting;
 
     @NotNull(message = "Score is required!")
-    @Min(value = 0, message = "Score must be non-negative")
+    @Min(value = 0, message = "Score must be non-negative!")
     private int score;
 
     private String comment;

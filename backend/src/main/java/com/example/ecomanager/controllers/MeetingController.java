@@ -1,14 +1,15 @@
 package com.example.ecomanager.controllers;
 
-import com.example.ecomanager.dtos.InternDTO;
-import com.example.ecomanager.responses.InternListResponse;
-import com.example.ecomanager.responses.InternResponse;
-import com.example.ecomanager.services.IInternService;
+import com.example.ecomanager.dtos.MeetingDTO;
+import com.example.ecomanager.responses.MeetingListResponse;
+import com.example.ecomanager.responses.MeetingResponse;
+import com.example.ecomanager.services.IMeetingService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -23,43 +24,44 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@RequestMapping("${api.prefix}/interns")
 @RequiredArgsConstructor
-public class InternController {
+@RequestMapping("${api.prefix}/meetings")
+public class MeetingController {
 
-    private final IInternService internServiceImpl;
+    private final IMeetingService meetingService;
 
     @GetMapping
-    public ResponseEntity<InternListResponse> getInterns(
+    public ResponseEntity<MeetingListResponse> getMeetings(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(required = false) String fullName,
-            @RequestParam(required = false) Boolean active
-    ) {
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate meetingDate
+            ) {
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by("id").ascending());
-        Page<InternResponse> internPage = internServiceImpl.getInterns(fullName, active, pageRequest);
-        List<InternResponse> internList = internPage.getContent();
+        Page<MeetingResponse> meetingPage = meetingService.getMeetings(title, meetingDate, pageRequest);
+        List<MeetingResponse> meetingList = meetingPage.getContent();
 
-        return ResponseEntity.ok(InternListResponse.builder()
-                .interns(internList)
-                .totalPages(internPage.getTotalPages())
+        return ResponseEntity.ok(MeetingListResponse.builder()
+                .meetings(meetingList)
+                .totalPages(meetingPage.getTotalPages())
                 .build());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<InternResponse> getInternById(@PathVariable Long id) throws Exception {
-        InternResponse internResponse = internServiceImpl.getInternById(id);
-        return ResponseEntity.ok(internResponse);
+    public ResponseEntity<MeetingResponse> getMeetingById(@PathVariable Long id) throws Exception {
+        MeetingResponse meetingResponse = meetingService.getMeetingById(id);
+        return ResponseEntity.ok(meetingResponse);
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> createIntern(
-            @Valid @RequestBody InternDTO internDTO,
+    public ResponseEntity<?> createMeeting(
+            @Valid @RequestBody MeetingDTO meetingDTO,
             BindingResult bindingResult
-    ) throws Exception {
+            ) throws Exception {
         if(bindingResult.hasErrors()){
             List<String> errors = bindingResult.getFieldErrors()
                     .stream()
@@ -68,16 +70,16 @@ public class InternController {
             return ResponseEntity.badRequest().body(errors);
         }
 
-        InternResponse internResponse = internServiceImpl.createIntern(internDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(internResponse);
+        MeetingResponse meetingResponse = meetingService.createMeeting(meetingDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(meetingResponse);
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateIntern(
+    public ResponseEntity<?> updateMeeting(
             @PathVariable Long id,
-            @Valid @RequestBody InternDTO internDTO,
+            @Valid @RequestBody MeetingDTO meetingDTO,
             BindingResult bindingResult
-    ) throws Exception {
+            ) throws Exception {
         if(bindingResult.hasErrors()){
             List<String> errors = bindingResult.getFieldErrors()
                     .stream()
@@ -86,14 +88,14 @@ public class InternController {
             return ResponseEntity.badRequest().body(errors);
         }
 
-        InternResponse internResponse = internServiceImpl.updateIntern(id, internDTO);
-        return ResponseEntity.ok(internResponse);
+        MeetingResponse meetingResponse = meetingService.updateMeeting(id, meetingDTO);
+        return ResponseEntity.ok(meetingResponse);
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> deleteIntern(@PathVariable Long id) throws Exception {
-        internServiceImpl.deleteIntern(id);
-        return ResponseEntity.ok("Intern deleted successfully");
+    public ResponseEntity<?> deleteMeeting(@PathVariable Long id) throws Exception {
+        meetingService.deleteMeeting(id);
+        return ResponseEntity.ok("Meeting deleted successfully");
     }
 
 }
