@@ -144,7 +144,7 @@ export class ProductsComponent implements OnInit {
             this.search();
           },
           error: (error) => {
-            this.snackBar.open('Có lỗi xảy ra khi xóa sản phẩm.', 'Đóng', {
+            this.snackBar.open('Có lỗi xảy ra khi xóa sản phẩm!', 'Đóng', {
               duration: 3000,
               horizontalPosition: 'right',
               verticalPosition: 'top',

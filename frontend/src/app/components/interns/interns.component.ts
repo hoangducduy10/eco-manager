@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { InternService } from '../../services/intern.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Intern } from '../../models/intern';
 import { InternResponse } from '../../reponses/intern/intern.response';
 import { PaginationComponent } from '../pagination/pagination.component';
 import { InternDialogComponent } from './intern-dialog/intern-dialog.component';
@@ -27,19 +26,19 @@ import {
   styleUrl: './interns.component.scss',
 })
 export class InternsComponent implements OnInit {
-  interns: Intern[] = [];
   currentPage: number = 0;
   itemsPerPage: number = 5;
   totalPages: number = 0;
   fullName: string = '';
   status: boolean | null = null;
 
-  private searchTerms = new Subject<{
-    fullName: string;
-    status: boolean | null;
-    page: number;
-  }>();
-  private searchSubscription?: Subscription;
+  get interns$() {
+    return this.internService.interns$;
+  }
+
+  get totalPages$() {
+    return this.internService.totalPages$;
+  }
 
   constructor(
     private internService: InternService,
@@ -48,55 +47,11 @@ export class InternsComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.searchSubscription = this.searchTerms
-      .pipe(
-        debounceTime(300),
-        distinctUntilChanged(
-          (a, b) =>
-            a.fullName === b.fullName &&
-            a.status === b.status &&
-            a.page === b.page
-        ),
-        switchMap((params) =>
-          this.internService.getInterns(
-            params.fullName,
-            params.status,
-            params.page,
-            this.itemsPerPage
-          )
-        )
-      )
-      .subscribe({
-        next: (response) => {
-          this.interns = response.interns;
-          this.totalPages = response.totalPages;
-        },
-        error: (error) => {
-          console.error('Error fetching interns:', error);
-        },
-      });
-
     this.search();
-  }
-
-  ngOnDestroy(): void {
-    this.searchSubscription?.unsubscribe();
   }
 
   detailIntern(intern: InternResponse) {
     this.openInternDialog(intern);
-  }
-
-  search(resetPage: boolean = false) {
-    if (resetPage) {
-      this.currentPage = 0;
-    }
-
-    this.searchTerms.next({
-      fullName: this.fullName,
-      status: this.status,
-      page: this.currentPage,
-    });
   }
 
   openInternDialog(intern?: InternResponse): void {
@@ -108,6 +63,27 @@ export class InternsComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result) => {
       if (result) this.search();
     });
+  }
+
+  search(resetPage: boolean = false) {
+    if (resetPage) {
+      this.currentPage = 0;
+    }
+
+    this.internService.setSearchParams({
+      fullName: this.fullName,
+      active: this.status,
+      page: this.currentPage,
+    });
+
+    this.internService
+      .getInterns(
+        this.fullName,
+        this.status,
+        this.currentPage,
+        this.itemsPerPage
+      )
+      .subscribe();
   }
 
   deleteIntern(id: number): void {

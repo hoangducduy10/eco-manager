@@ -69,7 +69,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let intern of interns">
+          <tr *ngFor="let intern of interns$ | async">
             <td>{{ intern.id }}</td>
             <td class="fw-medium">
               {{ intern.full_name }}
@@ -114,7 +114,7 @@
   <!-- Pagination -->
   <app-pagination
     [currentPage]="currentPage"
-    [totalPages]="totalPages"
+    [totalPages]="(totalPages$ | async) || 0"
     (pageChange)="onPageChange($event)"
   ></app-pagination>
 </div>

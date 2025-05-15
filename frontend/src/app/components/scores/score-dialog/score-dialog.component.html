@@ -1,0 +1,77 @@
+<!-- <div class="dialog-container">
+  <h2 mat-dialog-title>
+    {{ data ? "Chỉnh sửa điểm nhân viên" : "Chấm điểm nhân viên" }}
+  </h2>
+  <mat-dialog-content>
+    <form [formGroup]="scoreForm">
+      <mat-form-field class="w-100">
+        <mat-label>Nhân viên</mat-label>
+        <mat-select formControlName="employeeId">
+          <mat-option *ngFor="let emp of employees" [value]="emp.id">
+            {{ emp.fullName }}
+          </mat-option>
+        </mat-select>
+        <mat-error
+          *ngIf="
+            scoreForm.get('employeeId')?.touched &&
+            scoreForm.get('employeeId')?.invalid
+          "
+        >
+          {{ getErrorMessage("employeeId") }}
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field class="w-100">
+        <mat-label>Cuộc họp</mat-label>
+        <mat-select formControlName="meetingId">
+          <mat-option *ngFor="let meet of meetings" [value]="meet.id">
+            {{ meet.name }} - {{ meet.meetingDate | date : "dd/MM/yyyy" }}
+          </mat-option>
+        </mat-select>
+        <mat-error
+          *ngIf="
+            scoreForm.get('meetingId')?.touched &&
+            scoreForm.get('meetingId')?.invalid
+          "
+        >
+          {{ getErrorMessage("meetingId") }}
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field class="w-100">
+        <mat-label>Điểm</mat-label>
+        <input
+          matInput
+          type="number"
+          formControlName="score"
+          min="0"
+          max="10"
+        />
+        <mat-error
+          *ngIf="
+            scoreForm.get('score')?.touched && scoreForm.get('score')?.invalid
+          "
+        >
+          {{ getErrorMessage("score") }}
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field class="w-100">
+        <mat-label>Nhận xét</mat-label>
+        <textarea matInput formControlName="comment" rows="3"></textarea>
+      </mat-form-field>
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="cancel()">Hủy</button>
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="save()"
+      [disabled]="scoreForm.invalid"
+    >
+      Lưu
+    </button>
+  </mat-dialog-actions>
+</div> -->

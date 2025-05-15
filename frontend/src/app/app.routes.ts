@@ -7,6 +7,8 @@ import { AssignmentsComponent } from './components/assignments/assignments.compo
 import { LoginComponent } from './components/login/login/login.component';
 import { RegisterComponent } from './components/register/register.component';
 import { authGuard } from './guards/auth.guard';
+import { ScoresComponent } from './components/scores/scores.component';
+import { EmployeesComponent } from './components/employees/employees.component';
 
 export const routes: Routes = [
   // Auth routes
@@ -37,6 +39,16 @@ export const routes: Routes = [
   {
     path: 'assignments',
     component: AssignmentsComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'scores',
+    component: ScoresComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'employees',
+    component: EmployeesComponent,
     canActivate: [authGuard],
   },
 ];

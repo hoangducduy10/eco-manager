@@ -1,1 +1,67 @@
-<p>meeting-dialog works!</p>
+<div class="dialog-container">
+  <h2 mat-dialog-title>{{ data ? "Chỉnh sửa cuộc họp" : "Thêm cuộc họp" }}</h2>
+  <mat-dialog-content>
+    <form [formGroup]="meetingForm">
+      <mat-form-field class="w-100">
+        <mat-label>Tiêu đề</mat-label>
+        <input
+          matInput
+          formControlName="title"
+          placeholder="Nhập tiêu đề cuộc họp"
+        />
+        <mat-error
+          *ngIf="
+            meetingForm.get('title')?.invalid &&
+            meetingForm.get('title')?.touched
+          "
+        >
+          {{ getErrorMessage("title") }}
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field class="w-100">
+        <mat-label>Mô tả</mat-label>
+        <input
+          matInput
+          formControlName="description"
+          placeholder="Nhập mô tả"
+        />
+        <mat-error
+          *ngIf="
+            meetingForm.get('description')?.invalid &&
+            meetingForm.get('description')?.touched
+          "
+        >
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field class="w-100">
+        <mat-label>Ngày họp</mat-label>
+        <input
+          matInput
+          [matDatepicker]="picker"
+          formControlName="meeting_date"
+          required
+        />
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+        <mat-error
+          *ngIf="meetingForm.get('meeting_date')?.hasError('required')"
+        >
+          Vui lòng chọn ngày họp
+        </mat-error>
+      </mat-form-field>
+    </form>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="cancel()">Hủy</button>
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="save()"
+      [disabled]="meetingForm.invalid"
+    >
+      Lưu
+    </button>
+  </mat-dialog-actions>
+</div>

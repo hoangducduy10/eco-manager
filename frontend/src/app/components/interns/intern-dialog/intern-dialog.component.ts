@@ -19,6 +19,7 @@ import { InternService } from '../../../services/intern.service';
 import { CommonModule } from '@angular/common';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
+import { DateUtilsService } from '../../../services/date-utils.service';
 
 @Component({
   selector: 'app-intern-dialog',
@@ -48,6 +49,7 @@ export class InternDialogComponent {
     public dialogRef: MatDialogRef<InternDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: Intern | null,
     private internService: InternService,
+    private dateUtils: DateUtilsService,
     private snackBar: MatSnackBar,
     private fb: FormBuilder
   ) {
@@ -68,11 +70,16 @@ export class InternDialogComponent {
     });
 
     if (this.data) {
+      const startDate = this.data.start_date
+        ? this.dateUtils.fromDisplayFormat(this.data.start_date)
+        : null;
+
       this.internForm.patchValue({
-        ...this.data,
-        start_date: this.data.start_date
-          ? new Date(this.data.start_date)
-          : null,
+        full_name: this.data.full_name,
+        email: this.data.email,
+        phone_number: this.data.phone_number,
+        start_date: startDate,
+        status: this.data.status,
       });
     }
   }
@@ -89,9 +96,7 @@ export class InternDialogComponent {
       full_name: formValue.full_name,
       email: formValue.email,
       phone_number: formValue.phone_number,
-      start_date: formValue.start_date
-        ? this.formatDate(formValue.start_date)
-        : '',
+      start_date: this.dateUtils.toApiFormat(formValue.start_date),
       status: formValue.status,
     };
 
@@ -106,7 +111,7 @@ export class InternDialogComponent {
           this.dialogRef.close(true);
         },
         error: (error) => {
-          this.snackBar.open('Có lỗi xảy ra khi thêm intern.', 'Đóng', {
+          this.snackBar.open('Có lỗi xảy ra khi thêm intern!', 'Đóng', {
             duration: 3000,
             horizontalPosition: 'right',
             verticalPosition: 'top',
@@ -132,7 +137,6 @@ export class InternDialogComponent {
             verticalPosition: 'top',
             panelClass: ['error-snackbar'],
           });
-          console.error(error);
         },
       });
     }
@@ -154,12 +158,5 @@ export class InternDialogComponent {
       return 'Số điện thoại phải có 10 chữ số';
     }
     return '';
-  }
-
-  private formatDate(date: Date): string {
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
   }
 }
