@@ -1,8 +1,8 @@
 package com.example.ecomanager.controllers;
 
 import com.example.ecomanager.dtos.InternDTO;
-import com.example.ecomanager.responses.InternListResponse;
 import com.example.ecomanager.responses.InternResponse;
+import com.example.ecomanager.responses.BaseListResponse;
 import com.example.ecomanager.services.IInternService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +33,7 @@ public class InternController {
     private final IInternService internServiceImpl;
 
     @GetMapping
-    public ResponseEntity<InternListResponse> getInterns(
+    public ResponseEntity<BaseListResponse<InternResponse>> getInterns(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String fullName,
@@ -43,8 +43,8 @@ public class InternController {
         Page<InternResponse> internPage = internServiceImpl.getInterns(fullName, active, pageRequest);
         List<InternResponse> internList = internPage.getContent();
 
-        return ResponseEntity.ok(InternListResponse.builder()
-                .interns(internList)
+        return ResponseEntity.ok(BaseListResponse.<InternResponse>builder()
+                .items(internList)
                 .totalPages(internPage.getTotalPages())
                 .build());
     }

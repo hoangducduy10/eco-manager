@@ -1,7 +1,7 @@
 package com.example.ecomanager.controllers;
 
 import com.example.ecomanager.dtos.ScoreDTO;
-import com.example.ecomanager.responses.ScoreListResponse;
+import com.example.ecomanager.responses.BaseListResponse;
 import com.example.ecomanager.responses.ScoreResponse;
 import com.example.ecomanager.services.IScoreService;
 import jakarta.validation.Valid;
@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("${api.prefix}/scores")
@@ -35,7 +36,7 @@ public class ScoreController {
     private final IScoreService scoreService;
 
     @GetMapping
-    public ResponseEntity<ScoreListResponse> getAllScores(
+    public ResponseEntity<BaseListResponse<ScoreResponse>> getAllScores(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String employeeName,
@@ -46,8 +47,8 @@ public class ScoreController {
         Page<ScoreResponse> scorePage = scoreService.getAllScores(employeeName, meetingName, meetingDate, pageRequest);
         List<ScoreResponse> scoreList = scorePage.getContent();
 
-        return ResponseEntity.ok(ScoreListResponse.builder()
-                .scores(scoreList)
+        return ResponseEntity.ok(BaseListResponse.<ScoreResponse>builder()
+                .items(scoreList)
                 .totalPages(scorePage.getTotalPages())
                 .build());
     }
@@ -96,6 +97,8 @@ public class ScoreController {
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> deleteScore(@PathVariable Long id) throws Exception {
         scoreService.deleteScore(id);
-        return ResponseEntity.ok("Score deleted successfully");
+        Map<String, String> response = new java.util.HashMap<>();
+        response.put("message", "Score deleted successfully!");
+        return ResponseEntity.ok(response);
     }
 }

@@ -9,9 +9,8 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
-public class ProductListResponse {
-
-    private List<ProductResponse> products;
+public class BaseListResponse<T> {
+    private List<T> items;
 
     private int totalPages;
 

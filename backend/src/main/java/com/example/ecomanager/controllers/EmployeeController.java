@@ -1,15 +1,15 @@
 package com.example.ecomanager.controllers;
 
-import com.example.ecomanager.dtos.MeetingDTO;
+import com.example.ecomanager.dtos.EmployeeDTO;
+import com.example.ecomanager.enums.EmployeeRole;
+import com.example.ecomanager.responses.EmployeeResponse;
 import com.example.ecomanager.responses.BaseListResponse;
-import com.example.ecomanager.responses.MeetingResponse;
-import com.example.ecomanager.services.IMeetingService;
+import com.example.ecomanager.services.IEmployeeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -24,46 +24,46 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("${api.prefix}/meetings")
-public class MeetingController {
+@RequestMapping("${api.prefix}/employees")
+public class EmployeeController {
 
-    private final IMeetingService meetingService;
+    private final IEmployeeService employeeService;
 
     @GetMapping
-    public ResponseEntity<BaseListResponse<MeetingResponse>> getMeetings(
+    public ResponseEntity<BaseListResponse<EmployeeResponse>> getEmployees(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(required = false) String title,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate meetingDate
-            ) {
+            @RequestParam(required = false) String fullName,
+            @RequestParam(required = false) EmployeeRole role,
+            @RequestParam(required = false) Boolean active
+    ) {
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by("id").ascending());
-        Page<MeetingResponse> meetingPage = meetingService.getMeetings(title, meetingDate, pageRequest);
-        List<MeetingResponse> meetingList = meetingPage.getContent();
+        Page<EmployeeResponse> employeePage = employeeService.getEmployees(fullName, role, active, pageRequest);
+        List<EmployeeResponse> employeeList = employeePage.getContent();
 
-        return ResponseEntity.ok(BaseListResponse.<MeetingResponse>builder()
-                .items(meetingList)
-                .totalPages(meetingPage.getTotalPages())
+        return ResponseEntity.ok(BaseListResponse.<EmployeeResponse>builder()
+                .items(employeeList)
+                .totalPages(employeePage.getTotalPages())
                 .build());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<MeetingResponse> getMeetingById(@PathVariable Long id) throws Exception {
-        MeetingResponse meetingResponse = meetingService.getMeetingById(id);
-        return ResponseEntity.ok(meetingResponse);
+    public ResponseEntity<EmployeeResponse> getEmployeeById(@PathVariable Long id) throws Exception {
+        EmployeeResponse employeeResponse = employeeService.getEmployeeById(id);
+        return ResponseEntity.ok(employeeResponse);
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> createMeeting(
-            @Valid @RequestBody MeetingDTO meetingDTO,
+    public ResponseEntity<?> createEmployee(
+            @Valid @RequestBody EmployeeDTO employeeDTO,
             BindingResult bindingResult
-            ) throws Exception {
+    ) throws Exception {
         if(bindingResult.hasErrors()){
             List<String> errors = bindingResult.getFieldErrors()
                     .stream()
@@ -72,16 +72,16 @@ public class MeetingController {
             return ResponseEntity.badRequest().body(errors);
         }
 
-        MeetingResponse meetingResponse = meetingService.createMeeting(meetingDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(meetingResponse);
+        EmployeeResponse employeeResponse = employeeService.createEmployee(employeeDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(employeeResponse);
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateMeeting(
+    public ResponseEntity<?> updateEmployee(
             @PathVariable Long id,
-            @Valid @RequestBody MeetingDTO meetingDTO,
+            @Valid @RequestBody EmployeeDTO employeeDTO,
             BindingResult bindingResult
-            ) throws Exception {
+    ) throws Exception {
         if(bindingResult.hasErrors()){
             List<String> errors = bindingResult.getFieldErrors()
                     .stream()
@@ -90,15 +90,15 @@ public class MeetingController {
             return ResponseEntity.badRequest().body(errors);
         }
 
-        MeetingResponse meetingResponse = meetingService.updateMeeting(id, meetingDTO);
-        return ResponseEntity.ok(meetingResponse);
+        EmployeeResponse employeeResponse = employeeService.updateEmployee(id, employeeDTO);
+        return ResponseEntity.ok(employeeResponse);
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> deleteMeeting(@PathVariable Long id) throws Exception {
-        meetingService.deleteMeeting(id);
+    public ResponseEntity<?> deleteEmployee(@PathVariable Long id) throws Exception {
+        employeeService.deleteEmployee(id);
         Map<String, String> response = new HashMap<>();
-        response.put("message", "Meeting deleted successfully!");
+        response.put("message", "Employee deleted successfully!");
         return ResponseEntity.ok(response);
     }
 

@@ -9,11 +9,14 @@ import com.example.ecomanager.repositories.ProductRepository;
 import com.example.ecomanager.responses.InternResponse;
 import com.example.ecomanager.responses.ProductResponse;
 import com.example.ecomanager.services.IProductService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -32,10 +35,12 @@ public class ProductServiceImpl implements IProductService {
     public ProductResponse getProductById(Long id) throws Exception {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoundException("Product not found with id: " + id));
+
         return ProductResponse.fromProduct(product);
     }
 
     @Override
+    @Transactional
     public ProductResponse createProduct(ProductDTO productDTO) throws Exception {
         Product product = modelMapper.map(productDTO, Product.class);
         product.setId(null);
@@ -55,6 +60,7 @@ public class ProductServiceImpl implements IProductService {
     }
 
     @Override
+    @Transactional
     public ProductResponse updateProduct(Long id, ProductDTO productDTO) throws Exception {
         Product existingProduct = productRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoundException("Product not found with id: " + id));
@@ -70,10 +76,16 @@ public class ProductServiceImpl implements IProductService {
             }
         }
 
+        if (productDTO.getStartDate() != null) {
+            LocalDateTime createdAt = productDTO.getStartDate().atStartOfDay();
+            existingProduct.setCreatedAt(createdAt);
+        }
+
         return ProductResponse.fromProduct(productRepository.save(existingProduct));
     }
 
     @Override
+    @Transactional
     public void deleteProduct(Long id) throws Exception{
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoundException("Product not found with id: " + id));

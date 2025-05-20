@@ -47,11 +47,6 @@ public class InternServiceImpl implements IInternService {
         intern.setId(null);
         intern.setActive("Active".equalsIgnoreCase(internDTO.getStatus()));
 
-        if (internDTO.getStartDate() != null) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-            intern.setStartDate(LocalDate.parse(internDTO.getStartDate(), formatter));
-        }
-
         return InternResponse.fromIntern(internRepository.save(intern));
     }
 
@@ -60,6 +55,7 @@ public class InternServiceImpl implements IInternService {
     public InternResponse updateIntern(Long id, InternDTO internDTO) throws Exception {
         Intern existingIntern = internRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoundException("Intern not found with id: " + id));
+
         if(!existingIntern.getEmail().equals(internDTO.getEmail()) && internRepository.findByEmail(internDTO.getEmail()).isPresent()) {
             throw new RuntimeException("Intern with email " + internDTO.getEmail() + " already exists!");
         }
@@ -68,11 +64,6 @@ public class InternServiceImpl implements IInternService {
 
         if (internDTO.getStatus() != null) {
             existingIntern.setActive("Active".equalsIgnoreCase(internDTO.getStatus()));
-        }
-
-        if (internDTO.getStartDate() != null) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-            existingIntern.setStartDate(LocalDate.parse(internDTO.getStartDate(), formatter));
         }
 
         return InternResponse.fromIntern(internRepository.save(existingIntern));

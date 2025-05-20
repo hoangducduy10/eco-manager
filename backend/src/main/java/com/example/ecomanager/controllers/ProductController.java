@@ -2,7 +2,7 @@ package com.example.ecomanager.controllers;
 
 import com.example.ecomanager.dtos.ProductDTO;
 import com.example.ecomanager.enums.ProductStatus;
-import com.example.ecomanager.responses.ProductListResponse;
+import com.example.ecomanager.responses.BaseListResponse;
 import com.example.ecomanager.responses.ProductResponse;
 import com.example.ecomanager.services.IProductService;
 import jakarta.validation.Valid;
@@ -36,7 +36,7 @@ public class ProductController {
     private final IProductService productService;
 
     @GetMapping
-    public ResponseEntity<ProductListResponse> getProducts(
+    public ResponseEntity<BaseListResponse<ProductResponse>> getProducts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String name,
@@ -46,8 +46,8 @@ public class ProductController {
         Page<ProductResponse> productPage = productService.getProducts(name, status, pageRequest);
         List<ProductResponse> productList = productPage.getContent();
 
-        return ResponseEntity.ok(ProductListResponse.builder()
-                .products(productList)
+        return ResponseEntity.ok(BaseListResponse.<ProductResponse>builder()
+                .items(productList)
                 .totalPages(productPage.getTotalPages())
                 .build());
     }
