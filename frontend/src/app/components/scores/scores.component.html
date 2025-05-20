@@ -76,7 +76,7 @@
         </thead>
         <tbody>
           <!-- Example row -->
-          <tr *ngFor="let score of scores">
+          <tr *ngFor="let score of scores$ | async">
             <td>{{ score.id }}</td>
             <td>{{ score.employee.fullName }}</td>
             <td>{{ score.meeting.title }}</td>
@@ -110,7 +110,7 @@
   <!-- Pagination -->
   <app-pagination
     [currentPage]="currentPage"
-    [totalPages]="totalPages"
+    [totalPages]="(totalPages$ | async) || 0"
     (pageChange)="onPageChange($event)"
   ></app-pagination>
 </div>

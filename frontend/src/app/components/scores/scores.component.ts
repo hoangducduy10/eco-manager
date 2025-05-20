@@ -3,18 +3,11 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { PaginationComponent } from '../pagination/pagination.component';
 import { Score } from '../../models/score';
-import {
-  debounceTime,
-  distinctUntilChanged,
-  Subject,
-  Subscription,
-  switchMap,
-} from 'rxjs';
 import { ScoreService } from '../../services/score.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
-import { ScoreResponse } from '../../reponses/score/score.response';
 import { ScoreDialogComponent } from './score-dialog/score-dialog.component';
+import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-scores',
@@ -24,22 +17,19 @@ import { ScoreDialogComponent } from './score-dialog/score-dialog.component';
   styleUrl: './scores.component.scss',
 })
 export class ScoresComponent implements OnInit {
-  scores: Score[] = [];
   currentPage: number = 0;
   itemsPerPage: number = 5;
-  totalPages: number = 0;
   employeeName: string = '';
   meetingName: string = '';
   meetingDate: string = '';
 
-  private searchTerms = new Subject<{
-    employeeName: string;
-    meetingName: string;
-    meetingDate: string;
-    page: number;
-  }>();
+  get scores$() {
+    return this.scoreService.scores$;
+  }
 
-  private searchSubscription?: Subscription;
+  get totalPages$() {
+    return this.scoreService.totalPages$;
+  }
 
   constructor(
     private scoreService: ScoreService,
@@ -48,130 +38,36 @@ export class ScoresComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.searchSubscription = this.searchTerms
-      .pipe(
-        debounceTime(300),
-        distinctUntilChanged(
-          (a, b) =>
-            a.employeeName === b.employeeName &&
-            a.meetingName === b.meetingName &&
-            a.meetingDate === b.meetingDate &&
-            a.page === b.page
-        ),
-        switchMap((params) =>
-          this.scoreService.getScores(
-            params.employeeName,
-            params.meetingName,
-            params.meetingDate,
-            params.page,
-            this.itemsPerPage
-          )
-        )
-      )
-      .subscribe({
-        next: (response) => {
-          // Map từ ScoreResponse sang Score
-          this.scores = response.scores.map(item => ({
-            id: item.id,
-            employee: {
-              id: item.employeeId,
-              fullName: item.employeeName
-            },
-            meeting: {
-              id: item.meetingId,
-              title: item.meetingName,
-              meetingDate: item.meetingDate
-            },
-            score: item.score,
-            comment: item.comment,
-            createdAt: item.createdAt,
-            updatedAt: item.updatedAt
-          }));
-          this.totalPages = response.totalPages;
-        },
-        error: (error) => {
-          console.error('Error fetching scores:', error);
-        },
-      });
-
     this.search();
-  }
-
-  ngOnDestroy(): void {
-    this.searchSubscription?.unsubscribe();
-  }
-
-  getScores(
-    employeeName: string,
-    meetingName: string,
-    meetingDate: string,
-    page: number
-  ) {
-    this.scoreService
-      .getScores(
-        employeeName,
-        meetingName,
-        meetingDate,
-        page,
-        this.itemsPerPage
-      )
-      .subscribe({
-        next: (response) => {
-          // Map từ ScoreResponse sang Score
-          this.scores = response.scores.map(item => ({
-            id: item.id,
-            employee: {
-              id: item.employeeId,
-              fullName: item.employeeName
-            },
-            meeting: {
-              id: item.meetingId,
-              title: item.meetingName,
-              meetingDate: item.meetingDate
-            },
-            score: item.score,
-            comment: item.comment,
-            createdAt: item.createdAt,
-            updatedAt: item.updatedAt
-          }));
-          this.totalPages = response.totalPages;
-        },
-        error: (error) => {
-          console.error('Error fetching scores:', error);
-        },
-      });
   }
 
   search(resetPage: boolean = false) {
     if (resetPage) {
       this.currentPage = 0;
     }
-    this.searchTerms.next({
+
+    this.scoreService.setSearchParams({
       employeeName: this.employeeName,
       meetingName: this.meetingName,
       meetingDate: this.meetingDate,
       page: this.currentPage,
     });
+
+    this.scoreService
+      .getScores(
+        this.employeeName,
+        this.meetingName,
+        this.meetingDate,
+        this.currentPage,
+        this.itemsPerPage
+      )
+      .subscribe();
   }
 
-  detailScore(score: Score) {
-    const scoreResponse: ScoreResponse = {
-      id: score.id,
-      employeeId: score.employee.id,
-      meetingId: score.meeting.id,
-      employeeName: score.employee.fullName,
-      meetingName: score.meeting.title,
-      meetingDate: score.meeting.meetingDate,
-      score: score.score,
-      comment: score.comment,
-    };
-    this.openScoreDialog(scoreResponse);
-  }
-
-  openScoreDialog(score?: ScoreResponse): void {
+  openScoreDialog(score?: Score) {
     const dialogRef = this.dialog.open(ScoreDialogComponent, {
       width: '500px',
-      data: score || null,
+      data: score,
     });
 
     dialogRef.afterClosed().subscribe((result) => {
@@ -179,10 +75,14 @@ export class ScoresComponent implements OnInit {
     });
   }
 
+  detailScore(score?: Score) {
+    this.openScoreDialog(score);
+  }
+
   deleteScore(id: number): void {
-    const dialogRef = this.dialog.open(ScoreDialogComponent, {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '400px',
-      data: { message: 'Bạn có chắc chắn muốn xóa sản phẩm này không?' },
+      data: { message: 'Bạn có chắc chắn muốn xóa điểm của nhân viên này?' },
     });
 
     dialogRef.afterClosed().subscribe((result) => {
@@ -197,6 +97,7 @@ export class ScoresComponent implements OnInit {
             this.search();
           },
           error: (error) => {
+            console.error('Error deleting meeting:', error);
             this.snackBar.open('Có lỗi xảy ra khi xóa điểm!', 'Đóng', {
               duration: 3000,
               horizontalPosition: 'right',

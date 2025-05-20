@@ -2,30 +2,66 @@ import { Injectable } from '@angular/core';
 import { environment } from '../environments/environment';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import {
+  debounceTime,
+  distinctUntilChanged,
+  switchMap,
+  tap,
+} from 'rxjs/operators';
 import { MeetingDto } from '../dtos/meeting/meeting.dto';
 import { Meeting } from '../models/meeting';
 import { ListResponse } from '../reponses/list-response';
+import { EmployeeRole } from '../models/employee-role.enum';
+
+interface SearchParams {
+  title: string;
+  meetingDate: string;
+  page: number;
+  size: number;
+}
 
 @Injectable({
   providedIn: 'root',
 })
 export class MeetingService {
   private apiGetMeetings = `${environment.apiBaseUrl}/meetings`;
+
+  private searchParamsSubject = new BehaviorSubject<SearchParams>({
+    title: '',
+    meetingDate: '',
+    page: 0,
+    size: 5,
+  });
+
   private meetingsSubject = new BehaviorSubject<Meeting[]>([]);
   private totalPagesSubject = new BehaviorSubject<number>(0);
 
   meetings$ = this.meetingsSubject.asObservable();
   totalPages$ = this.totalPagesSubject.asObservable();
 
-  private currentSearchParams = {
-    title: '',
-    meetingDate: '',
-    page: 0,
-    size: 5,
-  };
-
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {
+    this.searchParamsSubject
+      .asObservable()
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(
+          (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)
+        ),
+        switchMap((params) =>
+          this.getMeetings(
+            params.title,
+            params.meetingDate,
+            params.page,
+            params.size
+          )
+        ),
+        tap((response) => {
+          this.meetingsSubject.next(response.items);
+          this.totalPagesSubject.next(response.totalPages);
+        })
+      )
+      .subscribe();
+  }
 
   getMeetings(
     title: string,
@@ -39,14 +75,9 @@ export class MeetingService {
       .set('page', page.toString())
       .set('size', size.toString());
 
-    return this.http
-      .get<ListResponse<Meeting>>(this.apiGetMeetings, { params })
-      .pipe(
-        tap((response) => {
-          this.meetingsSubject.next(response.items);
-          this.totalPagesSubject.next(response.totalPages);
-        })
-      );
+    return this.http.get<ListResponse<Meeting>>(this.apiGetMeetings, {
+      params,
+    });
   }
 
   getMeetingById(id: number): Observable<Meeting> {
@@ -76,16 +107,13 @@ export class MeetingService {
       .pipe(tap(() => this.refreshCurrentPage()));
   }
 
-  setSearchParams(params: any) {
-    this.currentSearchParams = { ...this.currentSearchParams, ...params };
+  setSearchParams(params: Partial<SearchParams>) {
+    const current = this.searchParamsSubject.value;
+    this.searchParamsSubject.next({ ...current, ...params });
   }
 
   refreshCurrentPage() {
-    this.getMeetings(
-      this.currentSearchParams.title,
-      this.currentSearchParams.meetingDate,
-      this.currentSearchParams.page,
-      this.currentSearchParams.size
-    ).subscribe();
+    const current = this.searchParamsSubject.value;
+    this.searchParamsSubject.next({ ...current });
   }
 }
