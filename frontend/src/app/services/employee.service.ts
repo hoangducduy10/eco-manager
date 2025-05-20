@@ -1,23 +1,25 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../environments/environment';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
-import { Intern } from '../models/intern';
+import { Employee } from '../models/employee';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { ListResponse } from '../reponses/list-response';
+import { EmployeeRole } from '../models/employee-role.enum';
 
 @Injectable({
   providedIn: 'root',
 })
-export class InternService {
-  private apiGetInterns = `${environment.apiBaseUrl}/interns`;
-  private internSubject = new BehaviorSubject<Intern[]>([]);
+export class EmployeeService {
+  private apiGetEmployees = `${environment.apiBaseUrl}/employees`;
+  private employeeSubject = new BehaviorSubject<Employee[]>([]);
   private totalPagesSubject = new BehaviorSubject<number>(0);
 
-  interns$ = this.internSubject.asObservable();
+  employees$ = this.employeeSubject.asObservable();
   totalPages$ = this.totalPagesSubject.asObservable();
 
   private currentSearchParams = {
     fullName: '',
+    role: null,
     active: null,
     page: 0,
     size: 5,
@@ -25,14 +27,16 @@ export class InternService {
 
   constructor(private http: HttpClient) {}
 
-  getInterns(
+  getEmployees(
     fullName: string,
+    role: EmployeeRole | null,
     active: boolean | null,
     page: number,
     size: number
-  ): Observable<ListResponse<Intern>> {
+  ): Observable<ListResponse<Employee>> {
     let params = new HttpParams()
       .set('fullName', fullName)
+      .set('role', role ? role : '')
       .set('page', page.toString())
       .set('size', size.toString());
 
@@ -41,33 +45,13 @@ export class InternService {
     }
 
     return this.http
-      .get<ListResponse<Intern>>(this.apiGetInterns, { params })
+      .get<ListResponse<Employee>>(this.apiGetEmployees, { params })
       .pipe(
         tap((response) => {
-          this.internSubject.next(response.items);
+          this.employeeSubject.next(response.items);
           this.totalPagesSubject.next(response.totalPages);
         })
       );
-  }
-
-  getInternById(id: number): Observable<Intern> {
-    return this.http.get<Intern>(`${this.apiGetInterns}/${id}`);
-  }
-
-  createIntern(intern: Intern): Observable<Intern> {
-    return this.http
-      .post<Intern>(`${this.apiGetInterns}/create`, intern)
-      .pipe(tap(() => this.refreshCurrentPage()));
-  }
-
-  updateIntern(id: number, intern: Intern): Observable<Intern> {
-    return this.http.put<Intern>(`${this.apiGetInterns}/update/${id}`, intern);
-  }
-
-  deleteIntern(id: number) {
-    return this.http.delete(`${this.apiGetInterns}/delete/${id}`, {
-      responseType: 'text',
-    });
   }
 
   setSearchParams(param: any) {
@@ -78,11 +62,34 @@ export class InternService {
   }
 
   refreshCurrentPage() {
-    this.getInterns(
+    this.getEmployees(
       this.currentSearchParams.fullName,
+      this.currentSearchParams.role,
       this.currentSearchParams.active,
       this.currentSearchParams.page,
       this.currentSearchParams.size
     ).subscribe();
+  }
+
+  getEmployeeById(id: number): Observable<Employee> {
+    return this.http.get<Employee>(`${this.apiGetEmployees}/${id}`);
+  }
+
+  createEmployee(employee: Employee): Observable<Employee> {
+    return this.http
+      .post<Employee>(`${this.apiGetEmployees}/create`, employee)
+      .pipe(tap(() => this.refreshCurrentPage()));
+  }
+
+  updateEmployee(id: number, employee: Employee): Observable<Employee> {
+    return this.http
+      .put<Employee>(`${this.apiGetEmployees}/update/${id}`, employee)
+      .pipe(tap(() => this.refreshCurrentPage()));
+  }
+
+  deleteEmployee(id: number) {
+    return this.http
+      .delete(`${this.apiGetEmployees}/delete/${id}`)
+      .pipe(tap(() => this.refreshCurrentPage()));
   }
 }

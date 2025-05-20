@@ -3,9 +3,9 @@ import { environment } from '../environments/environment';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { MeetingListResponse } from '../reponses/meeting/meeting-list.response';
 import { MeetingDto } from '../dtos/meeting/meeting.dto';
 import { Meeting } from '../models/meeting';
+import { ListResponse } from '../reponses/list-response';
 
 @Injectable({
   providedIn: 'root',
@@ -32,7 +32,7 @@ export class MeetingService {
     meetingDate: string,
     page: number,
     size: number
-  ): Observable<MeetingListResponse> {
+  ): Observable<ListResponse<Meeting>> {
     let params = new HttpParams()
       .set('title', title)
       .set('meetingDate', meetingDate)
@@ -40,10 +40,10 @@ export class MeetingService {
       .set('size', size.toString());
 
     return this.http
-      .get<MeetingListResponse>(this.apiGetMeetings, { params })
+      .get<ListResponse<Meeting>>(this.apiGetMeetings, { params })
       .pipe(
         tap((response) => {
-          this.meetingsSubject.next(response.meetings);
+          this.meetingsSubject.next(response.items);
           this.totalPagesSubject.next(response.totalPages);
         })
       );

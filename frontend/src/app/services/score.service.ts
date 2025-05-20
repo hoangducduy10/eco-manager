@@ -1,10 +1,25 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../environments/environment';
-import { ScoreListResponse } from '../reponses/score/score-list.response';
-import { Observable } from 'rxjs';
+import {
+  BehaviorSubject,
+  debounceTime,
+  distinctUntilChanged,
+  Observable,
+  switchMap,
+  tap,
+} from 'rxjs';
 import { ScoreDto } from '../dtos/score/score.dto';
 import { Score } from '../models/score';
+import { ListResponse } from '../reponses/list-response';
+
+interface SearchParams {
+  employeeName: string;
+  meetingName: string;
+  meetingDate: string;
+  page: number;
+  size: number;
+}
 
 @Injectable({
   providedIn: 'root',
@@ -12,7 +27,44 @@ import { Score } from '../models/score';
 export class ScoreService {
   private apiGetScores = `${environment.apiBaseUrl}/scores`;
 
-  constructor(private http: HttpClient) {}
+  private searchParamsSubject = new BehaviorSubject<SearchParams>({
+    employeeName: '',
+    meetingName: '',
+    meetingDate: '',
+    page: 0,
+    size: 5,
+  });
+
+  private scoresSubject = new BehaviorSubject<Score[]>([]);
+  private totalPagesSubject = new BehaviorSubject<number>(0);
+
+  scores$ = this.scoresSubject.asObservable();
+  totalPages$ = this.totalPagesSubject.asObservable();
+
+  constructor(private http: HttpClient) {
+    this.searchParamsSubject
+      .asObservable()
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(
+          (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)
+        ),
+        switchMap((params) =>
+          this.getScores(
+            params.employeeName,
+            params.meetingName,
+            params.meetingDate,
+            params.page,
+            params.size
+          )
+        ),
+        tap((response) => {
+          this.scoresSubject.next(response.items);
+          this.totalPagesSubject.next(response.totalPages);
+        })
+      )
+      .subscribe();
+  }
 
   getScores(
     employeeName: string,
@@ -20,7 +72,7 @@ export class ScoreService {
     meetingDate: string,
     page: number,
     size: number
-  ): Observable<ScoreListResponse> {
+  ): Observable<ListResponse<Score>> {
     let params = new HttpParams()
       .set('employeeName', employeeName)
       .set('meetingName', meetingName)
@@ -28,7 +80,7 @@ export class ScoreService {
       .set('page', page.toString())
       .set('size', size.toString());
 
-    return this.http.get<ScoreListResponse>(this.apiGetScores, { params });
+    return this.http.get<ListResponse<Score>>(this.apiGetScores, { params });
   }
 
   getScoreById(id: number): Observable<Score> {
@@ -36,14 +88,30 @@ export class ScoreService {
   }
 
   createScore(score: ScoreDto): Observable<Score> {
-    return this.http.post<Score>(`${this.apiGetScores}/create`, score);
+    return this.http
+      .post<Score>(`${this.apiGetScores}/create`, score)
+      .pipe(tap(() => this.refreshCurrentPage()));
   }
 
   updateScore(id: number, score: ScoreDto): Observable<Score> {
-    return this.http.put<Score>(`${this.apiGetScores}/update/${id}`, score);
+    return this.http
+      .put<Score>(`${this.apiGetScores}/update/${id}`, score)
+      .pipe(tap(() => this.refreshCurrentPage()));
   }
 
   deleteScore(id: number) {
-    return this.http.delete(`${this.apiGetScores}/delete/${id}`);
+    return this.http
+      .delete(`${this.apiGetScores}/delete/${id}`)
+      .pipe(tap(() => this.refreshCurrentPage()));
+  }
+
+  setSearchParams(params: Partial<SearchParams>) {
+    const current = this.searchParamsSubject.value;
+    this.searchParamsSubject.next({ ...current, ...params });
+  }
+
+  refreshCurrentPage() {
+    const current = this.searchParamsSubject.value;
+    this.searchParamsSubject.next({ ...current });
   }
 }

@@ -27,21 +27,19 @@ import {
   styleUrls: ['./products.component.scss'],
 })
 export class ProductsComponent implements OnInit {
-  products: Product[] = [];
   productStatus = ProductStatus;
   currentPage: number = 0;
   itemsPerPage: number = 5;
-  totalPages: number = 0;
   name: string = '';
   status: ProductStatus | null = null;
 
-  private searchTerms = new Subject<{
-    name: string;
-    status: ProductStatus | null;
-    page: number;
-  }>();
+  get products$() {
+    return this.productService.products$;
+  }
 
-  private searchSubscription?: Subscription;
+  get totalPages$() {
+    return this.productService.totalPages$;
+  }
 
   constructor(
     private productService: ProductService,
@@ -50,69 +48,27 @@ export class ProductsComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.searchSubscription = this.searchTerms
-      .pipe(
-        debounceTime(300),
-        distinctUntilChanged(
-          (a, b) =>
-            a.name === b.name && a.status === b.status && a.page === b.page
-        ),
-        switchMap((params) =>
-          this.productService.getProducts(
-            params.name,
-            params.status,
-            params.page,
-            this.itemsPerPage
-          )
-        )
-      )
-      .subscribe({
-        next: (response) => {
-          this.products = response.products;
-          this.totalPages = response.totalPages;
-        },
-        error: (error) => {
-          console.error('Error fetching products:', error);
-        },
-      });
-
     this.search();
-  }
-
-  ngOnDestroy(): void {
-    this.searchSubscription?.unsubscribe();
-  }
-
-  getProducts(
-    name: string,
-    status: ProductStatus | null,
-    page: number,
-    size: number
-  ) {
-    this.productService.getProducts(name, status, page, size).subscribe({
-      next: (response) => {
-        this.products = response.products;
-        this.totalPages = response.totalPages;
-      },
-      error: (error) => {
-        console.error('Error fetching products:', error);
-      },
-    });
-  }
-
-  detailProduct(product: ProductResponse) {
-    this.openProductDialog(product);
   }
 
   search(resetPage: boolean = false) {
     if (resetPage) {
       this.currentPage = 0;
     }
-    this.searchTerms.next({
+
+    this.productService.setSearchParams({
       name: this.name,
       status: this.status,
       page: this.currentPage,
     });
+
+    this.productService
+      .getProducts(this.name, this.status, this.currentPage, this.itemsPerPage)
+      .subscribe();
+  }
+
+  detailProduct(product: ProductResponse) {
+    this.openProductDialog(product);
   }
 
   openProductDialog(product?: ProductResponse): void {

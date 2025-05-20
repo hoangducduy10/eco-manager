@@ -1,10 +1,8 @@
-import { EmployeeRole } from './employee-role.enum';
-
-export interface Employee {
+export interface EmployeeResponse {
   id: number;
   full_name: string;
   email: string;
   phone_number: string;
-  role: EmployeeRole;
+  role: 'LEADER' | 'DEVELOPER' | 'TESTER';
   status: 'Active' | 'Inactive';
 }

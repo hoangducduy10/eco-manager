@@ -20,6 +20,7 @@ import { CommonModule } from '@angular/common';
 import { ProductDto } from '../../../dtos/product/product.dto';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { ProductStatus } from '../../../models/product-status.enum';
+import { DateUtilsService } from '../../../services/date-utils.service';
 
 export interface ProductDialogData {
   product?: Product;
@@ -46,21 +47,15 @@ export interface ProductDialogData {
 export class ProductDialogComponent {
   productForm: FormGroup;
   productStatus = ProductStatus;
-  minDate: Date;
-  maxDate: Date;
 
   constructor(
     public dialogRef: MatDialogRef<ProductDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: Product | null,
     private productService: ProductService,
+    private dateUtils: DateUtilsService,
     private snackBar: MatSnackBar,
     private fb: FormBuilder
   ) {
-    // Set min and max date for datepicker
-    const currentYear = new Date().getFullYear();
-    this.minDate = new Date(currentYear - 100, 0, 1);
-    this.maxDate = new Date();
-
     this.productForm = this.fb.group({
       name: ['', [Validators.required]],
       description: ['', [Validators.required, Validators.maxLength(500)]],
@@ -69,11 +64,13 @@ export class ProductDialogComponent {
     });
 
     if (this.data) {
+      const createdAt = this.data.created_at
+        ? this.dateUtils.fromApiFormat(this.data.created_at)
+        : null;
+
       this.productForm.patchValue({
         ...this.data,
-        created_at: this.data.created_at
-          ? new Date(this.data.created_at)
-          : null,
+        created_at: createdAt,
         status: this.data.status as ProductStatus,
       });
     }
@@ -86,11 +83,12 @@ export class ProductDialogComponent {
     }
 
     const formValue = this.productForm.value;
+
     const productData: ProductDto = {
       name: formValue.name,
       description: formValue.description,
       start_date: formValue.created_at
-        ? this.formatDate(formValue.created_at)
+        ? this.dateUtils.toApiFormat(formValue.created_at)
         : '',
       status: formValue.status,
     };
@@ -151,12 +149,5 @@ export class ProductDialogComponent {
       return 'Mô tả không được vượt quá 500 ký tự';
     }
     return '';
-  }
-
-  private formatDate(date: Date): string {
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
   }
 }

@@ -72,7 +72,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let product of products">
+          <tr *ngFor="let product of products$ | async">
             <td>{{ product.id }}</td>
             <td>
               <div class="fw-medium">{{ product.name }}</div>
@@ -127,7 +127,7 @@
   <!-- Pagination -->
   <app-pagination
     [currentPage]="currentPage"
-    [totalPages]="totalPages"
+    [totalPages]="(totalPages$ | async) || 0"
     (pageChange)="onPageChange($event)"
   ></app-pagination>
 </div>

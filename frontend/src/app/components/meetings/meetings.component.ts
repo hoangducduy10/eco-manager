@@ -19,10 +19,6 @@ import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.compone
   styleUrl: './meetings.component.scss',
 })
 export class MeetingsComponent implements OnInit {
-  private readonly meetingService: MeetingService;
-  private readonly snackBar: MatSnackBar;
-  private readonly dialog: MatDialog;
-
   currentPage: number = 0;
   itemsPerPage: number = 5;
   title: string = '';
@@ -37,14 +33,10 @@ export class MeetingsComponent implements OnInit {
   }
 
   constructor(
-    meetingService: MeetingService,
-    snackBar: MatSnackBar,
-    dialog: MatDialog
-  ) {
-    this.meetingService = meetingService;
-    this.snackBar = snackBar;
-    this.dialog = dialog;
-  }
+    private meetingService: MeetingService,
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog
+  ) {}
 
   ngOnInit(): void {
     this.search();

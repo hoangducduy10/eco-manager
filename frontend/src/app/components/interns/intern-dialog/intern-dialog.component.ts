@@ -103,7 +103,7 @@ export class InternDialogComponent {
     if (internData.id === 0) {
       this.internService.createIntern(internData).subscribe({
         next: () => {
-          this.snackBar.open('Đã thêm intern thành công!', 'Đóng', {
+          this.snackBar.open('Thêm intern thành công!', 'Đóng', {
             duration: 3000,
             horizontalPosition: 'right',
             verticalPosition: 'top',

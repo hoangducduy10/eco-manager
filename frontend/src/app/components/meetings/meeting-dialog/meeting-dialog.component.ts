@@ -21,6 +21,7 @@ import { MeetingService } from '../../../services/meeting.service';
 import { Meeting } from '../../../models/meeting';
 import { MeetingResponse } from '../../../reponses/meeting/meeting.response';
 import { MeetingDto } from '../../../dtos/meeting/meeting.dto';
+import { DateUtilsService } from '../../../services/date-utils.service';
 
 @Component({
   selector: 'app-meeting-dialog',
@@ -48,6 +49,7 @@ export class MeetingDialogComponent {
     public dialogRef: MatDialogRef<MeetingDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: Meeting | null,
     private meetingService: MeetingService,
+    private dateUtils: DateUtilsService,
     private snackBar: MatSnackBar,
     private fb: FormBuilder
   ) {
@@ -59,7 +61,7 @@ export class MeetingDialogComponent {
 
     if (this.data) {
       const meetingDate = this.data.meeting_date
-        ? new Date(this.data.meeting_date)
+        ? this.dateUtils.fromApiFormat(this.data.meeting_date)
         : null;
 
       this.meetingForm.patchValue({
@@ -90,7 +92,7 @@ export class MeetingDialogComponent {
     const meetingDto: MeetingDto = {
       title: formValue.title,
       description: formValue.description || '',
-      meeting_date: this.formatDate(formValue.meeting_date),
+      meeting_date: this.dateUtils.toApiFormat(formValue.meeting_date),
     };
 
     if (this.data?.id) {
@@ -149,11 +151,5 @@ export class MeetingDialogComponent {
       return 'Email không hợp lệ';
     }
     return '';
-  }
-
-  private formatDate(date: Date): string {
-    const offset = date.getTimezoneOffset();
-    const localDate = new Date(date.getTime() - offset * 60 * 1000);
-    return localDate.toISOString().split('T')[0];
   }
 }
