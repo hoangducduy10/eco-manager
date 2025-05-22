@@ -23,7 +23,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("${api.prefix}/interns")
@@ -93,7 +95,9 @@ public class InternController {
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> deleteIntern(@PathVariable Long id) throws Exception {
         internServiceImpl.deleteIntern(id);
-        return ResponseEntity.ok("Intern deleted successfully");
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Intern deleted successfully!");
+        return ResponseEntity.ok(response);
     }
 
 }

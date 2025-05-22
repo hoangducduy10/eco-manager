@@ -16,11 +16,9 @@ import lombok.Setter;
 @Builder
 public class ScoreDTO {
 
-    @JsonProperty("employee_id")
-    private Long employee;
+    private Long employeeId;
 
-    @JsonProperty("meeting_id")
-    private Long meeting;
+    private Long meetingId;
 
     @NotNull(message = "Score is required!")
     @Min(value = 0, message = "Score must be non-negative!")

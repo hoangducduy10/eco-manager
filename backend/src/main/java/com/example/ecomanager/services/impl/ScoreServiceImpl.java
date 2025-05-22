@@ -37,18 +37,22 @@ public class ScoreServiceImpl implements IScoreService {
     @Override
     @Transactional
     public ScoreResponse createScore(ScoreDTO scoreDTO) throws Exception {
-        Employee employee = employeeRepository.findById(scoreDTO.getEmployee())
-                .orElseThrow(() -> new DataNotFoundException("Employee not found with id: " + scoreDTO.getEmployee()));
+        Employee employee = employeeRepository.findById(scoreDTO.getEmployeeId())
+                .orElseThrow(() -> new DataNotFoundException("Employee not found with id: " + scoreDTO.getEmployeeId()));
 
-        Meeting meeting = meetingRepository.findById(scoreDTO.getMeeting())
-                .orElseThrow(() -> new DataNotFoundException("Meeting not found with id: " + scoreDTO.getMeeting()));
+        Meeting meeting = meetingRepository.findById(scoreDTO.getMeetingId())
+                .orElseThrow(() -> new DataNotFoundException("Meeting not found with id: " + scoreDTO.getMeetingId()));
 
-        Score score = modelMapper.map(scoreDTO, Score.class);
+        Score score = new Score();
         score.setId(null);
         score.setEmployee(employee);
         score.setMeeting(meeting);
+        score.setScore(scoreDTO.getScore());
+        score.setComment(scoreDTO.getComment());
 
-        return ScoreResponse.fromScore(scoreRepository.save(score));
+        Score savedScore = scoreRepository.save(score);
+
+        return ScoreResponse.fromScore(savedScore);
     }
 
     @Override
@@ -62,26 +66,33 @@ public class ScoreServiceImpl implements IScoreService {
     @Override
     @Transactional
     public ScoreResponse updateScore(Long id, ScoreDTO scoreDTO) throws Exception {
+        if (scoreDTO.getEmployeeId() == null) {
+            throw new IllegalArgumentException("EmployeeId must not be null!");
+        }
+
         Score score = scoreRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoundException("Score not found with id: " + id));
 
-        if(!score.getEmployee().getId().equals(scoreDTO.getEmployee())){
-            Employee employee = employeeRepository.findById(scoreDTO.getEmployee())
-                    .orElseThrow(() -> new DataNotFoundException("Employee not found with id: " + scoreDTO.getEmployee()));
+        if (!score.getEmployee().getId().equals(scoreDTO.getEmployeeId())) {
+            Employee employee = employeeRepository.findById(scoreDTO.getEmployeeId())
+                    .orElseThrow(() -> new DataNotFoundException("Employee not found with id: " + scoreDTO.getEmployeeId()));
             score.setEmployee(employee);
         }
 
-        if (!score.getMeeting().getId().equals(scoreDTO.getMeeting())) {
-            Meeting meeting = meetingRepository.findById(scoreDTO.getMeeting())
-                    .orElseThrow(() -> new DataNotFoundException("Meeting not found with id: " + scoreDTO.getMeeting()));
+        if (!score.getMeeting().getId().equals(scoreDTO.getMeetingId())) {
+            Meeting meeting = meetingRepository.findById(scoreDTO.getMeetingId())
+                    .orElseThrow(() -> new DataNotFoundException("Meeting not found with id: " + scoreDTO.getMeetingId()));
             score.setMeeting(meeting);
         }
 
         score.setScore(scoreDTO.getScore());
         score.setComment(scoreDTO.getComment());
 
-        return ScoreResponse.fromScore(scoreRepository.save(score));
+        Score savedScore = scoreRepository.save(score);
+
+        return ScoreResponse.fromScore(savedScore);
     }
+
 
     @Override
     @Transactional
