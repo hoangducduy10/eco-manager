@@ -19,7 +19,6 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MeetingService } from '../../../services/meeting.service';
 import { Meeting } from '../../../models/meeting';
-import { MeetingResponse } from '../../../reponses/meeting/meeting.response';
 import { MeetingDto } from '../../../dtos/meeting/meeting.dto';
 import { DateUtilsService } from '../../../services/date-utils.service';
 

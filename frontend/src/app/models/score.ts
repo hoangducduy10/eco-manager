@@ -1,5 +1,6 @@
-export interface Score {
-  id: number;
+import { ScoreResponse } from '../reponses/score/score.response';
+
+export interface Score extends ScoreResponse {
   employee: {
     id: number;
     fullName: string;
@@ -9,8 +10,4 @@ export interface Score {
     title: string;
     meetingDate: string;
   };
-  score: number;
-  comment?: string;
-  createdAt?: string;
-  updatedAt?: string;
 }

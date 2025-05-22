@@ -75,14 +75,22 @@
           </tr>
         </thead>
         <tbody>
-          <!-- Example row -->
           <tr *ngFor="let score of scores$ | async">
             <td>{{ score.id }}</td>
             <td>{{ score.employee.fullName }}</td>
             <td>{{ score.meeting.title }}</td>
             <td>
-              <span class="fw-bold text-success">{{ score.score }}</span>
+              <span
+                [ngClass]="{
+                  'bg-success-soft text-success': score.score >= 8,
+                  'bg-warning-soft text-warning':
+                    score.score >= 5 && score.score <= 7,
+                  'bg-danger-soft text-danger': score.score < 5
+                }"
+                >{{ score.score }}</span
+              >
             </td>
+
             <td>{{ score.comment }}</td>
             <td>{{ score.meeting.meetingDate | date : "dd/MM/yyyy" }}</td>
             <td>

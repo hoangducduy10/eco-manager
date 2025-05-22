@@ -1,4 +1,4 @@
-<!-- <div class="dialog-container">
+<div class="dialog-container">
   <h2 mat-dialog-title>
     {{ data ? "Chỉnh sửa điểm nhân viên" : "Chấm điểm nhân viên" }}
   </h2>
@@ -8,7 +8,7 @@
         <mat-label>Nhân viên</mat-label>
         <mat-select formControlName="employeeId">
           <mat-option *ngFor="let emp of employees" [value]="emp.id">
-            {{ emp.fullName }}
+            {{ emp.full_name }}
           </mat-option>
         </mat-select>
         <mat-error
@@ -25,7 +25,7 @@
         <mat-label>Cuộc họp</mat-label>
         <mat-select formControlName="meetingId">
           <mat-option *ngFor="let meet of meetings" [value]="meet.id">
-            {{ meet.name }} - {{ meet.meetingDate | date : "dd/MM/yyyy" }}
+            {{ meet.title }} - {{ meet.meeting_date | date : "dd/MM/yyyy" }}
           </mat-option>
         </mat-select>
         <mat-error
@@ -40,13 +40,14 @@
 
       <mat-form-field class="w-100">
         <mat-label>Điểm</mat-label>
-        <input
-          matInput
-          type="number"
-          formControlName="score"
-          min="0"
-          max="10"
-        />
+        <mat-select formControlName="score">
+          <mat-option
+            *ngFor="let s of [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]"
+            [value]="s"
+          >
+            {{ s }}
+          </mat-option>
+        </mat-select>
         <mat-error
           *ngIf="
             scoreForm.get('score')?.touched && scoreForm.get('score')?.invalid
@@ -59,6 +60,14 @@
       <mat-form-field class="w-100">
         <mat-label>Nhận xét</mat-label>
         <textarea matInput formControlName="comment" rows="3"></textarea>
+        <mat-error
+          *ngIf="
+            scoreForm.get('comment')?.touched &&
+            scoreForm.get('comment')?.invalid
+          "
+        >
+          {{ getErrorMessage("comment") }}
+        </mat-error>
       </mat-form-field>
     </form>
   </mat-dialog-content>
@@ -74,4 +83,4 @@
       Lưu
     </button>
   </mat-dialog-actions>
-</div> -->
+</div>

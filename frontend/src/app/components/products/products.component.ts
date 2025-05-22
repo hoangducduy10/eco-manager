@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProductService } from '../../services/product.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Product } from '../../models/product';
 import { ProductResponse } from '../../reponses/product/product.response';
 import { PaginationComponent } from '../pagination/pagination.component';
 import { ProductDialogComponent } from './product-dialog/product-dialog.component';
@@ -11,13 +10,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ProductStatus } from '../../models/product-status.enum';
-import {
-  debounceTime,
-  distinctUntilChanged,
-  Subject,
-  Subscription,
-  switchMap,
-} from 'rxjs';
 
 @Component({
   selector: 'app-products',

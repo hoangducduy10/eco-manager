@@ -8,11 +8,12 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { ScoreDialogComponent } from './score-dialog/score-dialog.component';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-scores',
   standalone: true,
-  imports: [CommonModule, FormsModule, PaginationComponent],
+  imports: [CommonModule, FormsModule, PaginationComponent, MatTooltipModule],
   templateUrl: './scores.component.html',
   styleUrl: './scores.component.scss',
 })
@@ -75,7 +76,7 @@ export class ScoresComponent implements OnInit {
     });
   }
 
-  detailScore(score?: Score) {
+  detailScore(score: Score) {
     this.openScoreDialog(score);
   }
 
@@ -97,14 +98,13 @@ export class ScoresComponent implements OnInit {
             this.search();
           },
           error: (error) => {
-            console.error('Error deleting meeting:', error);
+            console.error('Error deleting score:', error);
             this.snackBar.open('Có lỗi xảy ra khi xóa điểm!', 'Đóng', {
               duration: 3000,
               horizontalPosition: 'right',
               verticalPosition: 'top',
               panelClass: ['error-snackbar'],
             });
-            console.error('Lỗi khi xóa điểm của nhân viên:', error);
           },
         });
       }

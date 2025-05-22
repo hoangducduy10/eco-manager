@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import {
   FormBuilder,
@@ -20,6 +20,10 @@ import { MatOptionModule } from '@angular/material/core';
 import { ScoreService } from '../../../services/score.service';
 import { ScoreDto } from '../../../dtos/score/score.dto';
 import { Score } from '../../../models/score';
+import { EmployeeService } from '../../../services/employee.service';
+import { MeetingService } from '../../../services/meeting.service';
+import { Employee } from '../../../models/employee';
+import { Meeting } from '../../../models/meeting';
 
 @Component({
   selector: 'app-score-dialog',
@@ -39,41 +43,59 @@ import { Score } from '../../../models/score';
     MatDatepickerModule,
   ],
 })
-export class ScoreDialogComponent {
+export class ScoreDialogComponent implements OnInit {
   scoreForm: FormGroup;
-  minDate: Date;
-  maxDate: Date;
+  employees: Employee[] = [];
+  meetings: Meeting[] = [];
 
   constructor(
     private fb: FormBuilder,
     private scoreService: ScoreService,
+    private employeeService: EmployeeService,
+    private meetingService: MeetingService,
     private snackBar: MatSnackBar,
     public dialogRef: MatDialogRef<ScoreDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: Score | null
   ) {
-    const currentYear = new Date().getFullYear();
-    this.minDate = new Date(currentYear - 100, 0, 1);
-    this.maxDate = new Date();
-
     this.scoreForm = this.fb.group({
-      employeeId: ['', Validators.required],
-      meetingId: ['', Validators.required],
+      employeeId: [null, Validators.required],
+      meetingId: [null, Validators.required],
       score: [
         null,
         [Validators.required, Validators.min(0), Validators.max(10)],
       ],
       comment: ['', [Validators.required, Validators.maxLength(500)]],
     });
+  }
 
-    if (data) {
+  ngOnInit(): void {
+    this.loadEmployees();
+    this.loadMeetings();
+  }
+
+  private loadEmployees(): void {
+    this.employeeService
+      .getEmployees('', null, null, 0, 1000)
+      .subscribe((response) => {
+        this.employees = response.items;
+        this.patchFormIfEdit();
+      });
+  }
+
+  private loadMeetings(): void {
+    this.meetingService.getMeetings('', '', 0, 1000).subscribe((response) => {
+      this.meetings = response.items;
+      this.patchFormIfEdit();
+    });
+  }
+
+  private patchFormIfEdit(): void {
+    if (this.data && this.employees.length > 0 && this.meetings.length > 0) {
       this.scoreForm.patchValue({
-        employeeId: data.employee.id,
-        meetingId: data.meeting.id,
-        score: data.score,
-        comment: data.comment,
-        meetingDate: data.meeting.meetingDate
-          ? new Date(data.meeting.meetingDate)
-          : null,
+        employeeId: this.data.employee?.id || null,
+        meetingId: this.data.meeting?.id || null,
+        score: this.data.score,
+        comment: this.data.comment || '',
       });
     }
   }
@@ -81,16 +103,29 @@ export class ScoreDialogComponent {
   save(): void {
     if (this.scoreForm.invalid) {
       this.scoreForm.markAllAsTouched();
+      console.log('Form is invalid:', this.scoreForm.errors);
+      Object.keys(this.scoreForm.controls).forEach((key) => {
+        const control = this.scoreForm.get(key);
+        if (control?.invalid) {
+          console.log(`${key} errors:`, control.errors);
+        }
+      });
       return;
     }
 
     const formValue = this.scoreForm.value;
-    const dto: ScoreDto = {
-      employeeId: formValue.employeeId,
-      meetingId: formValue.meetingId,
-      score: formValue.score,
-      comment: formValue.comment,
-    };
+
+    if (!formValue.employeeId) {
+      this.snackBar.open('Vui lòng chọn nhân viên!', 'Đóng', {
+        duration: 3000,
+        panelClass: ['error-snackbar'],
+        horizontalPosition: 'right',
+        verticalPosition: 'top',
+      });
+      return;
+    }
+
+    const dto = new ScoreDto(formValue);
 
     if (this.data) {
       this.scoreService.updateScore(this.data.id, dto).subscribe({
@@ -103,13 +138,13 @@ export class ScoreDialogComponent {
           this.dialogRef.close(true);
         },
         error: (err) => {
+          console.error('Update error:', err);
           this.snackBar.open('Lỗi khi cập nhật điểm!', 'Đóng', {
             duration: 3000,
             panelClass: ['error-snackbar'],
             horizontalPosition: 'right',
             verticalPosition: 'top',
           });
-          console.error(err);
         },
       });
     } else {
@@ -123,13 +158,13 @@ export class ScoreDialogComponent {
           this.dialogRef.close(true);
         },
         error: (err) => {
+          console.error('Create error:', err);
           this.snackBar.open('Lỗi khi thêm điểm!', 'Đóng', {
             duration: 3000,
             panelClass: ['error-snackbar'],
             horizontalPosition: 'right',
             verticalPosition: 'top',
           });
-          console.error(err);
         },
       });
     }
@@ -146,13 +181,5 @@ export class ScoreDialogComponent {
     if (control?.hasError('min') || control?.hasError('max'))
       return 'Điểm phải từ 0 đến 10';
     return '';
-  }
-
-  private formatDate(date: Date): string {
-    const d = new Date(date);
-    const day = String(d.getDate()).padStart(2, '0');
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const year = d.getFullYear();
-    return `${year}-${month}-${day}`;
   }
 }

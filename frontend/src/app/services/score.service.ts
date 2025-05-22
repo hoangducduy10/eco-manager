@@ -8,10 +8,13 @@ import {
   Observable,
   switchMap,
   tap,
+  catchError,
+  map,
 } from 'rxjs';
 import { ScoreDto } from '../dtos/score/score.dto';
 import { Score } from '../models/score';
 import { ListResponse } from '../reponses/list-response';
+import { ScoreResponse } from '../reponses/score/score.response';
 
 interface SearchParams {
   employeeName: string;
@@ -59,8 +62,16 @@ export class ScoreService {
           )
         ),
         tap((response) => {
-          this.scoresSubject.next(response.items);
-          this.totalPagesSubject.next(response.totalPages);
+          if (response && response.items) {
+            this.scoresSubject.next(response.items);
+            this.totalPagesSubject.next(response.totalPages);
+          }
+        }),
+        catchError((error) => {
+          console.error('Lỗi khi lấy dữ liệu:', error);
+          this.scoresSubject.next([]);
+          this.totalPagesSubject.next(0);
+          throw error;
         })
       )
       .subscribe();
@@ -80,7 +91,34 @@ export class ScoreService {
       .set('page', page.toString())
       .set('size', size.toString());
 
-    return this.http.get<ListResponse<Score>>(this.apiGetScores, { params });
+    return this.http
+      .get<ListResponse<ScoreResponse>>(this.apiGetScores, { params })
+      .pipe(
+        map((response) => ({
+          ...response,
+          items: response.items.map((item) => ({
+            ...item,
+            employee: {
+              id: item.employeeId,
+              fullName: item.employeeName,
+            },
+            meeting: {
+              id: item.meetingId,
+              title: item.meetingName,
+              meetingDate: item.meetingDate,
+            },
+          })) as Score[],
+        })),
+        tap((response) => {
+          if (response && response.items) {
+            this.scoresSubject.next(response.items);
+            this.totalPagesSubject.next(response.totalPages);
+          }
+        }),
+        catchError((error) => {
+          throw error;
+        })
+      );
   }
 
   getScoreById(id: number): Observable<Score> {
@@ -93,10 +131,24 @@ export class ScoreService {
       .pipe(tap(() => this.refreshCurrentPage()));
   }
 
-  updateScore(id: number, score: ScoreDto): Observable<Score> {
+  // Trong ScoreService, thêm debug cho updateScore method
+  updateScore(id: number, score: any): Observable<Score> {
+    console.log('Service updateScore - ID:', id);
+    console.log('Service updateScore - Data:', score);
+    console.log('Service updateScore - JSON:', JSON.stringify(score));
+
     return this.http
       .put<Score>(`${this.apiGetScores}/update/${id}`, score)
-      .pipe(tap(() => this.refreshCurrentPage()));
+      .pipe(
+        tap((response) => {
+          console.log('Update response:', response);
+          this.refreshCurrentPage();
+        }),
+        catchError((error) => {
+          console.error('Update service error:', error);
+          throw error;
+        })
+      );
   }
 
   deleteScore(id: number) {
