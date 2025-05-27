@@ -2,7 +2,7 @@ package com.example.ecomanager.services.impl;
 
 import com.example.ecomanager.components.JwtUtil;
 import com.example.ecomanager.dtos.UserDTO;
-import com.example.ecomanager.enums.RoleName;
+import com.example.ecomanager.enums.UserRole;
 import com.example.ecomanager.exceptions.DataNotFoundException;
 import com.example.ecomanager.exceptions.PermissionDenyException;
 import com.example.ecomanager.models.Role;
@@ -44,7 +44,7 @@ public class UserServiceImpl implements IUserService {
 
         Role role = roleRepository.findById(userDTO.getRoleId())
                 .orElseThrow(() -> new DataNotFoundException("Role not found!"));
-        if (role.getName() == RoleName.ADMIN) {
+        if (role.getName() == UserRole.ADMIN) {
             throw new PermissionDenyException("Cannot register an admin user!");
         }
 
@@ -79,8 +79,8 @@ public class UserServiceImpl implements IUserService {
     public String login(String phoneNumber, String password) throws Exception {
         User user = validateUserCredentials(phoneNumber, password);
 
-        RoleName roleName = user.getRole().getName();
-        if (roleName != RoleName.ADMIN && roleName != RoleName.STAFF) {
+        UserRole userRole = user.getRole().getName();
+        if (userRole != UserRole.ADMIN && userRole != UserRole.STAFF) {
             throw new PermissionDenyException("You do not have permission to access this resource!");
         }
 

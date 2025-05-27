@@ -1,8 +1,8 @@
 package com.example.ecomanager.dtos;
 
-import com.example.ecomanager.models.ProjectRoles;
+import com.example.ecomanager.models.Employee;
+import com.example.ecomanager.models.Product;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.Column;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotBlank;
@@ -11,28 +11,27 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
+
+import java.time.LocalDate;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
 @Builder
-@ToString
-public class EmployeeDTO {
+public class AssignmentDTO {
 
-    @NotBlank(message = "Fullname is required!")
-    @JsonProperty("full_name")
-    private String fullName;
+    private Long productId;
 
-    @NotBlank(message = "Email is required!")
-    private String email;
+    private Long employeeId;
 
-    @NotBlank(message = "Phone number is required!")
-    @JsonProperty("phone_number")
-    private String phoneNumber;
+    private String employeeRole;
 
-    private String role;
+    @JsonProperty("assigned_date")
+    private LocalDate assignedDate;
+
+    @JsonProperty("end_date")
+    private LocalDate endDate;
 
     @JsonProperty("status")
     private String status;

@@ -1,7 +1,10 @@
 package com.example.ecomanager.models;
 
+import com.example.ecomanager.enums.AssignmentStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -29,19 +32,25 @@ public class Assignment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "assigned_date")
+    @Column(name = "assigned_date", nullable = false)
     private LocalDate assignedDate;
 
-    @ManyToOne
-    @JoinColumn(name = "employee_id")
-    private Employee employee;
+    @Column(name = "end_date")
+    private LocalDate endDate;
+
+    @Enumerated(EnumType.STRING)
+    private AssignmentStatus status;
 
     @ManyToOne
-    @JoinColumn(name = "product_id")
-    private Product product;
+    @JoinColumn(name = "employee_id", nullable = false)
+    private Employee employeeId;
 
     @ManyToOne
-    @JoinColumn(name = "project_role_id")
+    @JoinColumn(name = "product_id", nullable = false)
+    private Product productId;
+
+    @ManyToOne
+    @JoinColumn(name = "project_role_id", nullable = false)
     private ProjectRoles projectRoles;
 
 }

@@ -42,6 +42,6 @@ public class Employee extends BaseEntity{
     private ProjectRoles projectRole;
 
     @Column(name = "is_active")
-    private boolean active;
+    private Boolean active;
 
 }

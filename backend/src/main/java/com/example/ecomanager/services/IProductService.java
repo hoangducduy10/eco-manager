@@ -2,7 +2,6 @@ package com.example.ecomanager.services;
 
 import com.example.ecomanager.dtos.ProductDTO;
 import com.example.ecomanager.enums.ProductStatus;
-import com.example.ecomanager.responses.InternResponse;
 import com.example.ecomanager.responses.ProductResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

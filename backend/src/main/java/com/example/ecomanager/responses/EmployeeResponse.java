@@ -32,7 +32,7 @@ public class EmployeeResponse {
                 .email(employee.getEmail())
                 .phoneNumber(employee.getPhoneNumber())
                 .role(employee.getProjectRole().getName().name())
-                .status(employee.isActive() ? "Active": "Inactive")
+                .status(employee.getActive() ? "Active": "Inactive")
                 .build();
     }
 

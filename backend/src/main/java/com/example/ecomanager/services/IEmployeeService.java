@@ -1,10 +1,8 @@
 package com.example.ecomanager.services;
 
 import com.example.ecomanager.dtos.EmployeeDTO;
-import com.example.ecomanager.dtos.InternDTO;
 import com.example.ecomanager.enums.EmployeeRole;
 import com.example.ecomanager.responses.EmployeeResponse;
-import com.example.ecomanager.responses.InternResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

@@ -50,6 +50,7 @@ public class EmployeeServiceImpl implements IEmployeeService {
 
         Employee employee = modelMapper.map(employeeDTO, Employee.class);
         employee.setId(null);
+        employee.setActive("Active".equalsIgnoreCase(employeeDTO.getStatus()));
         employee.setProjectRole(getProjectRoleFromDto(employeeDTO.getRole()));
 
         return EmployeeResponse.fromEmployee(employeeRepository.save(employee));
@@ -68,6 +69,10 @@ public class EmployeeServiceImpl implements IEmployeeService {
 
         modelMapper.map(employeeDTO, existingEmployee);
         existingEmployee.setProjectRole(getProjectRoleFromDto(employeeDTO.getRole()));
+
+        if (employeeDTO.getStatus() != null) {
+            existingEmployee.setActive("Active".equalsIgnoreCase(employeeDTO.getStatus()));
+        }
 
         return EmployeeResponse.fromEmployee(employeeRepository.save(existingEmployee));
     }

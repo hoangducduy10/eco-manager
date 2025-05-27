@@ -12,7 +12,6 @@ import com.example.ecomanager.responses.ScoreResponse;
 import com.example.ecomanager.services.IScoreService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -26,7 +25,6 @@ public class ScoreServiceImpl implements IScoreService {
     private final ScoreRepository scoreRepository;
     private final EmployeeRepository employeeRepository;
     private final MeetingRepository meetingRepository;
-    private final ModelMapper modelMapper;
 
     @Override
     public Page<ScoreResponse> getAllScores(String employeeName, String meetingName, LocalDate meetingDate, Pageable pageable) {
@@ -50,9 +48,7 @@ public class ScoreServiceImpl implements IScoreService {
         score.setScore(scoreDTO.getScore());
         score.setComment(scoreDTO.getComment());
 
-        Score savedScore = scoreRepository.save(score);
-
-        return ScoreResponse.fromScore(savedScore);
+        return ScoreResponse.fromScore(scoreRepository.save(score));
     }
 
     @Override
@@ -66,10 +62,6 @@ public class ScoreServiceImpl implements IScoreService {
     @Override
     @Transactional
     public ScoreResponse updateScore(Long id, ScoreDTO scoreDTO) throws Exception {
-        if (scoreDTO.getEmployeeId() == null) {
-            throw new IllegalArgumentException("EmployeeId must not be null!");
-        }
-
         Score score = scoreRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoundException("Score not found with id: " + id));
 
@@ -88,9 +80,7 @@ public class ScoreServiceImpl implements IScoreService {
         score.setScore(scoreDTO.getScore());
         score.setComment(scoreDTO.getComment());
 
-        Score savedScore = scoreRepository.save(score);
-
-        return ScoreResponse.fromScore(savedScore);
+        return ScoreResponse.fromScore(scoreRepository.save(score));
     }
 
 
