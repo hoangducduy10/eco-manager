@@ -4,6 +4,7 @@
   align-items: center;
   margin-bottom: 2rem;
   padding: 1rem 0;
+
   .page-title {
     font-size: 1.75rem;
     font-weight: 600;
@@ -18,6 +19,7 @@
   border: none;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
   margin-bottom: 1.5rem;
+
   .card-body {
     padding: 1.5rem;
   }
@@ -32,10 +34,48 @@
     padding: 1rem 1.5rem;
     white-space: nowrap;
   }
+
   td {
     padding: 1rem 1.5rem;
     color: #2c3e50;
     vertical-align: middle;
+  }
+}
+
+// Avatar
+.avatar-sm {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .avatar-initials {
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.875rem;
+  }
+}
+
+// Badges
+.badge {
+  padding: 0.5em 0.75em;
+  font-weight: 500;
+  border-radius: 6px;
+
+  &.bg-success-soft {
+    background-color: rgba(40, 167, 69, 0.1);
+    color: #28a745;
+  }
+
+  &.bg-warning-soft {
+    background-color: rgba(255, 193, 7, 0.1);
+    color: #ffc107;
+  }
+
+  &.bg-danger-soft {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
   }
 }
 
@@ -46,6 +86,7 @@
   border-color: rgba(0, 0, 0, 0.1);
   padding: 0.5rem 1rem;
   font-size: 0.875rem;
+
   &:focus {
     border-color: #3498db;
     box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
@@ -64,42 +105,28 @@
   border-radius: 8px;
   padding: 0.5rem 1rem;
   font-weight: 500;
+
   &.btn-primary {
     background-color: #3498db;
     border-color: #3498db;
+
     &:hover {
       background-color: darken(#3498db, 5%);
       border-color: darken(#3498db, 5%);
     }
   }
+
   &.btn-light {
     background-color: #f8f9fa;
     border-color: rgba(0, 0, 0, 0.05);
+
     &:hover {
       background-color: darken(#f8f9fa, 5%);
     }
   }
+
   &.btn-sm {
     padding: 0.25rem 0.5rem;
     font-size: 0.875rem;
-  }
-}
-
-// Pagination
-.pagination {
-  .page-item {
-    margin: 0 2px;
-    .page-link {
-      border-radius: 4px;
-      border: none;
-      color: #6c757d;
-      &:focus {
-        box-shadow: none;
-      }
-    }
-    &.active .page-link {
-      background-color: #3498db;
-      color: white;
-    }
   }
 }

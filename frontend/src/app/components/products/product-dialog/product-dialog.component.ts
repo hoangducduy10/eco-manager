@@ -96,7 +96,7 @@ export class ProductDialogComponent {
     if (this.data) {
       this.productService.updateProduct(this.data.id, productData).subscribe({
         next: () => {
-          this.snackBar.open('Đã cập nhật sản phẩm thành công!', 'Đóng', {
+          this.snackBar.open('Cập nhật sản phẩm thành công!', 'Đóng', {
             duration: 3000,
             horizontalPosition: 'right',
             verticalPosition: 'top',
@@ -104,7 +104,7 @@ export class ProductDialogComponent {
           this.dialogRef.close(true);
         },
         error: (error) => {
-          this.snackBar.open('Có lỗi xảy ra khi cập nhật sản phẩm.', 'Đóng', {
+          this.snackBar.open('Có lỗi xảy ra khi cập nhật sản phẩm!', 'Đóng', {
             duration: 3000,
             horizontalPosition: 'right',
             verticalPosition: 'top',

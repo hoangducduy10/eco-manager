@@ -83,7 +83,7 @@ export class ScoresComponent implements OnInit {
   deleteScore(id: number): void {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '400px',
-      data: { message: 'Bạn có chắc chắn muốn xóa điểm của nhân viên này?' },
+      data: { message: 'Bạn có chắc muốn xóa điểm của nhân viên này?' },
     });
 
     dialogRef.afterClosed().subscribe((result) => {

@@ -3,7 +3,6 @@ import { environment } from '../environments/environment';
 import {
   BehaviorSubject,
   debounceTime,
-  distinctUntilChanged,
   Observable,
   switchMap,
   tap,
@@ -43,9 +42,6 @@ export class InternService {
       .asObservable()
       .pipe(
         debounceTime(300),
-        distinctUntilChanged(
-          (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)
-        ),
         switchMap((params) =>
           this.getInterns(
             params.fullName,

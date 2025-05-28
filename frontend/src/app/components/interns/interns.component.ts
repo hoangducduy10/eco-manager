@@ -9,14 +9,6 @@ import { InternDialogComponent } from './intern-dialog/intern-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import {
-  debounceTime,
-  distinctUntilChanged,
-  Subject,
-  Subscription,
-  switchMap,
-  tap,
-} from 'rxjs';
 
 @Component({
   selector: 'app-interns',

@@ -81,13 +81,11 @@
               <span
                 class="badge"
                 [ngClass]="{
-                  'bg-success-soft text-success': intern.status === 'Active',
-                  'bg-danger-soft text-danger': intern.status === 'Inactive'
+                  'bg-success-soft': intern.status === 'Active',
+                  'bg-danger-soft': intern.status === 'Inactive'
                 }"
-                >{{
-                  intern.status === "Active" ? "Đang làm việc" : "Đã nghỉ"
-                }}</span
-              >
+                >{{ intern.status === "Active" ? "Đang làm việc" : "Đã nghỉ" }}
+              </span>
             </td>
             <td>
               <button

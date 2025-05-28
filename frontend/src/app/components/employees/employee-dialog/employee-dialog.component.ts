@@ -120,7 +120,8 @@ export class EmployeeDialogComponent {
             });
             this.dialogRef.close(true);
           },
-          error: (error) => {
+          error: (err) => {
+            console.error('Create error:', err);
             this.snackBar.open(
               'Có lỗi xảy ra khi cập nhật nhân viên.',
               'Đóng',

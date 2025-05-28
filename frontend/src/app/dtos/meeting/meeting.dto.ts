@@ -8,7 +8,7 @@ export class MeetingDto {
   @IsString()
   description: string;
 
-  meeting_date: string;
+  meeting_date: string | null;
 
   constructor(data: any) {
     this.title = data.title;

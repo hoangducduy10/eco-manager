@@ -1,1 +1,147 @@
-<p>assignment-dialog works!</p>
+<div class="dialog-container">
+  <h2 mat-dialog-title>
+    {{ data ? "Chỉnh sửa phân công" : "Thêm phân công mới" }}
+  </h2>
+  <mat-dialog-content>
+    <form [formGroup]="assignmentForm">
+      <mat-form-field class="w-100">
+        <mat-label>Nhân viên</mat-label>
+        <mat-select formControlName="employeeId">
+          <mat-option *ngFor="let emp of employees" [value]="emp.id">
+            {{ emp.full_name }}
+          </mat-option>
+        </mat-select>
+        <mat-error
+          *ngIf="
+            assignmentForm.get('employeeId')?.touched &&
+            assignmentForm.get('employeeId')?.invalid
+          "
+        >
+          {{ getErrorMessage("employeeId") }}
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field class="w-100">
+        <mat-label>Sản phẩm</mat-label>
+        <mat-select formControlName="productId">
+          <mat-option *ngFor="let prod of products" [value]="prod.id">
+            {{ prod.name }}
+          </mat-option>
+        </mat-select>
+        <mat-error
+          *ngIf="
+            assignmentForm.get('productId')?.touched &&
+            assignmentForm.get('productId')?.invalid
+          "
+        >
+          {{ getErrorMessage("productId") }}
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field class="w-100">
+        <mat-label>Vai trò</mat-label>
+        <mat-select formControlName="role">
+          <mat-option *ngFor="let role of roles | keyvalue" [value]="role.key">
+            {{ role.value }}
+          </mat-option>
+        </mat-select>
+        <mat-error
+          *ngIf="
+            assignmentForm.get('role')?.touched &&
+            assignmentForm.get('role')?.invalid
+          "
+        >
+          {{ getErrorMessage("role") }}
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field class="w-100">
+        <mat-label>Ngày phân công</mat-label>
+        <input
+          matInput
+          [matDatepicker]="assignedDatePicker"
+          formControlName="assigned_date"
+        />
+        <mat-datepicker-toggle
+          matSuffix
+          [for]="assignedDatePicker"
+        ></mat-datepicker-toggle>
+        <mat-datepicker #assignedDatePicker></mat-datepicker>
+        <mat-error
+          *ngIf="
+            assignmentForm.get('assigned_date')?.touched &&
+            assignmentForm.get('assigned_date')?.invalid
+          "
+        >
+          {{ getErrorMessage("assigned_date") }}
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field class="w-100">
+        <mat-label>Ngày kết thúc</mat-label>
+        <input
+          matInput
+          [matDatepicker]="endDatePicker"
+          formControlName="end_date"
+        />
+        <mat-datepicker-toggle
+          matSuffix
+          [for]="endDatePicker"
+        ></mat-datepicker-toggle>
+        <mat-datepicker #endDatePicker></mat-datepicker>
+        <mat-hint
+          *ngIf="
+            assignmentForm.get('status')?.value === 'active' &&
+            !assignmentForm.get('end_date')?.value
+          "
+        >
+          Chưa có ngày kết thúc (Đang hoạt động)
+        </mat-hint>
+        <mat-error
+          *ngIf="
+            assignmentForm.get('end_date')?.touched &&
+            assignmentForm.get('end_date')?.invalid
+          "
+        >
+          {{ getErrorMessage("end_date") }}
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field class="w-100">
+        <mat-label>Trạng thái</mat-label>
+        <mat-select
+          formControlName="status"
+          (selectionChange)="onStatusChange($event.value)"
+        >
+          <mat-option value="active">Đang hoạt động</mat-option>
+          <mat-option value="inactive">Ngừng hoạt động</mat-option>
+        </mat-select>
+        <mat-error
+          *ngIf="
+            assignmentForm.get('status')?.touched &&
+            assignmentForm.get('status')?.invalid
+          "
+        >
+          {{ getErrorMessage("status") }}
+        </mat-error>
+      </mat-form-field>
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="cancel()">Hủy</button>
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="save()"
+      [disabled]="assignmentForm.invalid || isSubmitting"
+    >
+      <span *ngIf="!isSubmitting">Lưu</span>
+      <mat-progress-spinner
+        *ngIf="isSubmitting"
+        mode="indeterminate"
+        diameter="20"
+      ></mat-progress-spinner>
+    </button>
+  </mat-dialog-actions>
+</div>

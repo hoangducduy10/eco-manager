@@ -2,16 +2,10 @@ import { Injectable } from '@angular/core';
 import { environment } from '../environments/environment';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
-import {
-  debounceTime,
-  distinctUntilChanged,
-  switchMap,
-  tap,
-} from 'rxjs/operators';
+import { debounceTime, switchMap, tap } from 'rxjs/operators';
 import { MeetingDto } from '../dtos/meeting/meeting.dto';
 import { Meeting } from '../models/meeting';
 import { ListResponse } from '../reponses/list-response';
-import { EmployeeRole } from '../models/employee-role.enum';
 
 interface SearchParams {
   title: string;
@@ -44,9 +38,6 @@ export class MeetingService {
       .asObservable()
       .pipe(
         debounceTime(300),
-        distinctUntilChanged(
-          (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)
-        ),
         switchMap((params) =>
           this.getMeetings(
             params.title,

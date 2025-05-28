@@ -8,7 +8,7 @@ export class ProductDto {
 
   description: string;
 
-  start_date: string;
+  start_date: string | null;
 
   status: ProductStatus;
 

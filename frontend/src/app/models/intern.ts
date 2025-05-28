@@ -3,6 +3,6 @@ export interface Intern {
   full_name: string;
   email: string;
   phone_number: string;
-  start_date: string;
+  start_date: string | null;
   status: 'Active' | 'Inactive';
 }

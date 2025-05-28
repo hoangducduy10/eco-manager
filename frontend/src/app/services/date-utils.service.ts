@@ -10,11 +10,22 @@ export class DateUtilsService {
     return isNaN(date.getTime()) ? null : date;
   }
 
-  toApiFormat(date: Date): string {
-    if (!date) return '';
-    const offset = date.getTimezoneOffset();
-    const localDate = new Date(date.getTime() - offset * 60 * 1000);
-    return localDate.toISOString().split('T')[0];
+  toApiFormat(date: Date | null | undefined): string | null {
+    if (!date) return null;
+
+    // Ensure we have a valid Date object
+    const validDate = date instanceof Date ? date : new Date(date);
+
+    if (isNaN(validDate.getTime())) {
+      return null;
+    }
+
+    // Create date in local timezone and format as YYYY-MM-DD
+    const year = validDate.getFullYear();
+    const month = String(validDate.getMonth() + 1).padStart(2, '0');
+    const day = String(validDate.getDate()).padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
   }
 
   fromDisplayFormat(dateStr: string): Date | null {

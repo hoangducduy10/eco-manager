@@ -8,12 +8,13 @@
       </p>
     </div>
     <div class="page-actions">
-      <button class="btn btn-primary">
+      <button class="btn btn-primary" (click)="openAssignmentDialog()">
         <i class="fas fa-plus me-2"></i>
         Thêm Phân công mới
       </button>
     </div>
   </div>
+
   <!-- Search & Filter -->
   <div class="card mb-4">
     <div class="card-body">
@@ -27,29 +28,38 @@
               type="text"
               class="form-control"
               placeholder="Tìm kiếm theo sản phẩm..."
+              [(ngModel)]="productName"
+              (input)="search(true)"
             />
           </div>
         </div>
         <div class="col-md-3">
-          <select class="form-select">
-            <option value="">Tất cả trạng thái</option>
-            <option value="assigned">Đã phân công</option>
-            <option value="completed">Đã hoàn thành</option>
-            <option value="pending">Chưa thực hiện</option>
-          </select>
+          <div class="input-group">
+            <span class="input-group-text">
+              <i class="fas fa-user"></i>
+            </span>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Tìm kiếm theo nhân viên..."
+              [(ngModel)]="employeeName"
+              (input)="search(true)"
+            />
+          </div>
         </div>
         <div class="col-md-3">
-          <select class="form-select">
-            <option value="">Sắp xếp theo</option>
-            <option value="product">Sản phẩm</option>
-            <option value="employee">Nhân viên</option>
-            <option value="created_at">Ngày tạo</option>
-            <option value="updated_at">Ngày cập nhật</option>
-          </select>
+          <input
+            type="date"
+            class="form-control"
+            placeholder="Ngày phân công"
+            [(ngModel)]="assignedDate"
+            (change)="search(true)"
+          />
         </div>
       </div>
     </div>
   </div>
+
   <!-- Assignments Table -->
   <div class="card">
     <div class="table-responsive">
@@ -60,27 +70,63 @@
             <th>Sản phẩm</th>
             <th>Nhân viên</th>
             <th>Vai trò</th>
-            <th>Ngày tạo</th>
-            <th>Ngày cập nhật</th>
+            <th>Ngày phân công</th>
+            <th>Ngày kết thúc</th>
+            <th>Trạng thái</th>
             <th>Thao tác</th>
           </tr>
         </thead>
         <tbody>
-          <!-- Assignment 1 -->
-          <tr>
-            <td>1</td>
+          <tr *ngFor="let assignment of assignment$ | async">
+            <td>{{ assignment.id }}</td>
             <td>
-              <div class="d-flex align-items-center fw-medium">Sản phẩm A</div>
+              <div class="d-flex align-items-center fw-medium">
+                {{ assignment.product.name }}
+              </div>
             </td>
-            <td>Nguyen Van A</td>
-            <td>Developer</td>
-            <td>04/05/2025</td>
-            <td>05/05/2025</td>
+            <td>{{ assignment.employee.fullName }}</td>
             <td>
-              <button class="btn btn-sm btn-light me-2" title="Chỉnh sửa">
+              <span class="badge bg-info">{{ assignment.role }}</span>
+            </td>
+            <td>{{ assignment.assigned_date | date : "dd/MM/yyyy" }}</td>
+            <td>
+              {{
+                assignment.end_date
+                  ? (assignment.end_date | date : "dd/MM/yyyy")
+                  : "---"
+              }}
+            </td>
+
+            <td>
+              <span
+                class="badge"
+                [ngClass]="{
+                  'bg-success-soft': assignment.status === 'active',
+                  'bg-danger-soft': assignment.status === 'inactive'
+                }"
+              >
+                {{
+                  assignment.status === "active"
+                    ? "Đang hoạt động"
+                    : "Ngừng hoạt động"
+                }}
+              </span>
+            </td>
+            <td>
+              <button
+                class="btn btn-sm btn-light me-2"
+                title="Chỉnh sửa"
+                matTooltip="Chỉnh sửa"
+                (click)="detailAssignment(assignment)"
+              >
                 <i class="fas fa-edit"></i>
               </button>
-              <button class="btn btn-sm btn-light text-danger" title="Xóa">
+              <button
+                class="btn btn-sm btn-light text-danger"
+                title="Xóa"
+                matTooltip="Xóa"
+                (click)="deleteAssignment(assignment.id!)"
+              >
                 <i class="fas fa-trash"></i>
               </button>
             </td>
@@ -90,10 +136,9 @@
     </div>
   </div>
   <!-- Pagination -->
-  <!-- <app-pagination
-    [totalItems]="totalItems"
-    [itemsPerPage]="itemsPerPage"
+  <app-pagination
     [currentPage]="currentPage"
+    [totalPages]="(totalPages$ | async) || 0"
     (pageChange)="onPageChange($event)"
-  ></app-pagination> -->
+  ></app-pagination>
 </div>

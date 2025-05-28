@@ -4,7 +4,6 @@ import {
   BehaviorSubject,
   Observable,
   debounceTime,
-  distinctUntilChanged,
   switchMap,
   tap,
 } from 'rxjs';
@@ -45,9 +44,6 @@ export class ProductService {
       .asObservable()
       .pipe(
         debounceTime(300),
-        distinctUntilChanged(
-          (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)
-        ),
         switchMap((params) =>
           this.getProducts(params.name, params.status, params.page, params.size)
         ),

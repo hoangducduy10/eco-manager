@@ -103,13 +103,6 @@ export class ScoreDialogComponent implements OnInit {
   save(): void {
     if (this.scoreForm.invalid) {
       this.scoreForm.markAllAsTouched();
-      console.log('Form is invalid:', this.scoreForm.errors);
-      Object.keys(this.scoreForm.controls).forEach((key) => {
-        const control = this.scoreForm.get(key);
-        if (control?.invalid) {
-          console.log(`${key} errors:`, control.errors);
-        }
-      });
       return;
     }
 
