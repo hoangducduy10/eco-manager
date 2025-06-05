@@ -9,6 +9,7 @@ import { RegisterComponent } from './components/register/register.component';
 import { authGuard } from './guards/auth.guard';
 import { ScoresComponent } from './components/scores/scores.component';
 import { EmployeesComponent } from './components/employees/employees.component';
+import { FileManagementComponent } from './components/file-management/file-management.component';
 
 export const routes: Routes = [
   // Auth routes
@@ -49,6 +50,11 @@ export const routes: Routes = [
   {
     path: 'employees',
     component: EmployeesComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'files',
+    component: FileManagementComponent,
     canActivate: [authGuard],
   },
 ];

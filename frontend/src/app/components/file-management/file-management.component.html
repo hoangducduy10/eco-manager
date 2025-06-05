@@ -1,0 +1,155 @@
+<!-- File Management Component -->
+<div class="container-fluid">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Quản lý File</h1>
+      <p class="text-muted">Quản lý và chuyển đổi các file tài liệu</p>
+    </div>
+    <div class="page-actions">
+      <input
+        type="file"
+        #fileInput
+        style="display: none"
+        (change)="onFileSelected($event)"
+      />
+      <button class="btn btn-primary" (click)="fileInput.click()">
+        <i class="fas fa-upload me-2"></i>
+        Upload File
+      </button>
+      <button class="btn btn-secondary ms-2" (click)="convertSelectedToPdf()">
+        <i class="fas fa-exchange-alt me-2"></i>
+        Chuyển đổi PDF
+      </button>
+    </div>
+  </div>
+
+  <!-- Search & Filter -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <div class="input-group">
+            <span class="input-group-text">
+              <i class="fas fa-search"></i>
+            </span>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Tìm kiếm file..."
+              [(ngModel)]="searchTerm"
+            />
+          </div>
+        </div>
+        <div class="col-md-3">
+          <select class="form-select" [(ngModel)]="fileTypeFilter">
+            <option value="all">Tất cả file</option>
+            <option value="doc">DOC/DOCX</option>
+            <option value="pdf">PDF</option>
+            <option value="other">Khác</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <select class="form-select" [(ngModel)]="sortBy">
+            <option value="">Sắp xếp theo</option>
+            <option value="name">Tên file</option>
+            <option value="date">Ngày tải lên</option>
+            <option value="size">Kích thước</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Files Table -->
+  <div class="card">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="bg-light">
+          <tr>
+            <th style="width: 40px">
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  [checked]="selectAll"
+                  (change)="toggleSelectAll()"
+                />
+              </div>
+            </th>
+            <th>Tên file</th>
+            <th>Loại file</th>
+            <th>Kích thước</th>
+            <th>Ngày tải lên</th>
+            <th>Thao tác</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="let file of filterFiles()"
+            [class.selected]="file.selected"
+          >
+            <td>
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  [checked]="file.selected"
+                  (change)="toggleFileSelection(file)"
+                />
+              </div>
+            </td>
+            <td class="fw-medium">
+              <i class="fas me-2" [ngClass]="getFileIcon(file.type)"></i>
+              {{ file.name }}
+            </td>
+            <td>
+              <span class="badge bg-primary-soft">
+                {{
+                  file.type === "doc"
+                    ? "DOC"
+                    : file.type === "pdf"
+                    ? "PDF"
+                    : "Khác"
+                }}
+              </span>
+            </td>
+            <td>{{ file.size | fileSize }}</td>
+            <td>{{ file.uploadDate | date : "dd/MM/yyyy" }}</td>
+            <td>
+              <button
+                class="btn btn-sm btn-light me-2"
+                matTooltip="Xem trước"
+                (click)="previewFile(file)"
+              >
+                <i class="fas fa-eye"></i>
+              </button>
+              <button
+                class="btn btn-sm btn-light me-2"
+                matTooltip="Tải xuống"
+                (click)="downloadFile(file.name)"
+              >
+                <i class="fas fa-download"></i>
+              </button>
+              <button
+                *ngIf="file.type === 'doc'"
+                class="btn btn-sm btn-light me-2"
+                matTooltip="Chuyển đổi PDF"
+                (click)="convertToPdf(file.name)"
+              >
+                <i class="fas fa-file-pdf"></i>
+              </button>
+              <button
+                class="btn btn-sm btn-light text-danger"
+                matTooltip="Xóa"
+                (click)="deleteFile(file.name)"
+              >
+                <i class="fas fa-trash"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

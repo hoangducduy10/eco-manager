@@ -5,16 +5,18 @@ import { TokenService } from '../../services/token.service';
 import { Router } from '@angular/router';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [],
+  imports: [CommonModule],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss',
 })
 export class HeaderComponent implements OnInit {
   userResponse?: UserResponse | null;
+  currentDate: any;
 
   constructor(
     private authService: AuthService,
@@ -25,6 +27,10 @@ export class HeaderComponent implements OnInit {
 
   ngOnInit(): void {
     this.userResponse = this.authService.getUserFromLocalStorage();
+    this.currentDate = new Date();
+    setInterval(() => {
+      this.currentDate = new Date();
+    }, 1000);
   }
 
   logout() {
