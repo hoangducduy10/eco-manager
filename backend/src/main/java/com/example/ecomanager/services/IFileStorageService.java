@@ -1,23 +1,33 @@
 package com.example.ecomanager.services;
 
+import com.example.ecomanager.responses.FileMetadataResponse;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 public interface IFileStorageService {
 
-    List<String> getAllFiles() throws IOException;
+    Page<FileMetadataResponse> getAllFiles(String fileName, Pageable pageable) throws IOException;
 
-    void saveFile(MultipartFile file) throws Exception;
+    Optional<FileMetadataResponse> findByFileName(String fileName);
 
-    void saveFiles(List<MultipartFile> files) throws Exception;
+    Resource loadFileByPath(String path) throws IOException;
 
-    void savePdfFile(String fileName, byte[] pdfData) throws IOException;
+    FileMetadataResponse getFileById(Long id) throws Exception;
+
+    FileMetadataResponse saveFile(MultipartFile file) throws Exception;
+
+    List<FileMetadataResponse> saveFiles(List<MultipartFile> files) throws Exception;
+
+    FileMetadataResponse savePdfFile(String fileName, byte[] pdfData) throws IOException;
 
     Resource loadFile(String filename) throws IOException;
 
-    void deleteFile(String filename) throws IOException;
+    void deleteFile(String filename) throws Exception;
 
 }

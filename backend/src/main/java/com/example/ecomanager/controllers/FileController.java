@@ -1,9 +1,14 @@
 package com.example.ecomanager.controllers;
 
+import com.example.ecomanager.responses.BaseListResponse;
+import com.example.ecomanager.responses.FileMetadataResponse;
 import com.example.ecomanager.services.IDocumnetConversionService;
 import com.example.ecomanager.services.IFileStorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +24,10 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/" + "${api.prefix}" + "/files")
@@ -30,29 +38,44 @@ public class FileController {
     private final IDocumnetConversionService conversionService;
 
     @GetMapping
-    public ResponseEntity<List<String>> getAllFiles() throws IOException {
-        return ResponseEntity.ok(fileService.getAllFiles());
+    public ResponseEntity<BaseListResponse<FileMetadataResponse>> getAllFiles(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String fileName
+    ) throws IOException {
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by("id").ascending());
+        Page<FileMetadataResponse> filePage = fileService.getAllFiles(fileName, pageRequest);
+        List<FileMetadataResponse> fileList = filePage.getContent();
+
+        return ResponseEntity.ok(BaseListResponse.<FileMetadataResponse>builder()
+                .items(fileList)
+                .totalPages(filePage.getTotalPages())
+                .build());
     }
 
     @PostMapping("/upload")
-    public ResponseEntity<String> uploadFile(
+    public ResponseEntity<?> uploadFile(
             @RequestParam("file") MultipartFile file
     ) {
         try {
             fileService.saveFile(file);
-            return ResponseEntity.ok("File uploaded successfully: " + file.getOriginalFilename());
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "File uploaded successfully!");
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Failed to upload file: " + e.getMessage());
         }
     }
 
     @PostMapping("/upload/multiple")
-    public ResponseEntity<String> uploadMultipleFiles(
+    public ResponseEntity<?> uploadMultipleFiles(
             @RequestParam("files") List<MultipartFile> files
     ) {
         try {
             fileService.saveFiles(files);
-            return ResponseEntity.ok("Files uploaded successfully. Count: " + files.size());
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Files uploaded successfully. Count: " + files.size());
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Failed to upload files: " + e.getMessage());
         }
@@ -60,7 +83,14 @@ public class FileController {
 
     @GetMapping("/{fileName}")
     public ResponseEntity<Resource> getFile(@PathVariable String fileName) throws IOException {
-        Resource resource = fileService.loadFile(fileName);
+        Optional<FileMetadataResponse> fileMeta = fileService.findByFileName(fileName);
+        if (fileMeta.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        FileMetadataResponse metadata = fileMeta.get();
+
+        Resource resource = fileService.loadFileByPath(metadata.getTreePath());
 
         String contentType = Files.probeContentType(Paths.get(fileName));
         if (contentType == null) {
@@ -106,7 +136,6 @@ public class FileController {
 
             String pdfFileName = conversionService.convertAndSavePdf(fileName);
             return ResponseEntity.ok("File converted and saved successfully: " + pdfFileName);
-
         } catch (Exception e) {
             return ResponseEntity.status(500)
                     .body("Failed to convert file: " + e.getMessage());
@@ -114,12 +143,14 @@ public class FileController {
     }
 
     @DeleteMapping("/{fileName}")
-    public ResponseEntity<String> deleteFile(
+    public ResponseEntity<?> deleteFile(
             @PathVariable String fileName
-    ) {
+    ) throws Exception {
         try {
             fileService.deleteFile(fileName);
-            return ResponseEntity.ok("File deleted successfully: " + fileName);
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "File deleted successfully!");
+            return ResponseEntity.ok(response);
         } catch (IOException e) {
             return ResponseEntity.status(500).body("Failed to delete file: " + e.getMessage());
         }
