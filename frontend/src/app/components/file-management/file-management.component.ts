@@ -1,28 +1,40 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FileSizePipe } from './file-size.pipe';
-import { FileService, FileInfo } from '../../services/file.service';
-import { Subscription } from 'rxjs';
+import { FileService } from '../../services/file.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { FormsModule } from '@angular/forms';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
+import { FileMetadata } from '../../models/file-metadata';
+
+interface FileInfo extends FileMetadata {
+  selected?: boolean;
+  type: string;
+}
 
 @Component({
   selector: 'app-file-management',
   templateUrl: './file-management.component.html',
   styleUrls: ['./file-management.component.scss'],
   standalone: true,
-  imports: [CommonModule, FileSizePipe, FormsModule, MatTooltipModule],
+  imports: [CommonModule, FormsModule, MatTooltipModule],
 })
-export class FileManagementComponent implements OnInit, OnDestroy {
-  files: FileInfo[] = [];
+export class FileManagementComponent implements OnInit {
+  fileName: string = '';
+  currentPage: number = 0;
+  itemsPerPage: number = 5;
   selectAll: boolean = false;
-  private subscription: Subscription = new Subscription();
-  searchTerm: string = '';
   fileTypeFilter: string = 'all';
-  sortBy: string = '';
+  files: FileInfo[] = [];
+
+  get files$() {
+    return this.fileService.files$;
+  }
+
+  get totalPages$() {
+    return this.fileService.totalPages$;
+  }
 
   constructor(
     private fileService: FileService,
@@ -31,19 +43,50 @@ export class FileManagementComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.subscription.add(
-      this.fileService.files$.subscribe((files) => {
-        this.files = files.map((file) => ({
+    this.search();
+    this.files$.subscribe((files) => {
+      this.files = files.map((file) => {
+        const newFile = {
           ...file,
           selected: false,
-        }));
-      })
-    );
+          type: this.getFileType(file.file_name),
+        };
+        return newFile;
+      });
+    });
+  }
+
+  search(resetPage: boolean = false) {
+    if (resetPage) {
+      this.currentPage = 0;
+    }
+
+    this.fileService.setSearchParams({
+      fileName: this.fileName,
+      page: this.currentPage,
+      size: this.itemsPerPage,
+    });
+  }
+
+  private getFileType(fileName: string): string {
+    if (!fileName) {
+      return 'other';
+    }
+    const extension = fileName.split('.').pop()?.toLowerCase();
+    switch (extension) {
+      case 'doc':
+      case 'docx':
+        return 'doc';
+      case 'pdf':
+        return 'pdf';
+      default:
+        return 'other';
+    }
   }
 
   toggleSelectAll(): void {
     this.selectAll = !this.selectAll;
-    this.files = this.files.map((file) => ({
+    this.files = this.files.map((file: FileInfo) => ({
       ...file,
       selected: this.selectAll,
     }));
@@ -51,7 +94,7 @@ export class FileManagementComponent implements OnInit, OnDestroy {
 
   toggleFileSelection(file: FileInfo): void {
     file.selected = !file.selected;
-    this.selectAll = this.files.every((f) => f.selected);
+    this.selectAll = this.files.every((f: FileInfo) => f.selected);
   }
 
   getFileIcon(type: string): string {
@@ -67,7 +110,7 @@ export class FileManagementComponent implements OnInit, OnDestroy {
 
   previewFile(file: FileInfo): void {
     if (file.type === 'doc') {
-      this.fileService.convertToPdf(file.name).subscribe({
+      this.fileService.convertToPdf(file.id).subscribe({
         next: (blob) => {
           const url = window.URL.createObjectURL(blob);
           window.open(url, '_blank');
@@ -81,7 +124,7 @@ export class FileManagementComponent implements OnInit, OnDestroy {
         },
       });
     } else {
-      this.fileService.downloadFile(file.name).subscribe({
+      this.fileService.downloadFile(file.id).subscribe({
         next: (blob) => {
           const url = window.URL.createObjectURL(blob);
           window.open(url, '_blank');
@@ -99,23 +142,25 @@ export class FileManagementComponent implements OnInit, OnDestroy {
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
-    if (input.files?.length) {
+    if (input.files && input.files.length > 0) {
       const file = input.files[0];
+
       this.fileService.uploadFile(file).subscribe({
         next: () => {
           this.snackBar.open('Tải lên thành công', 'Đóng', { duration: 3000 });
+          this.search(true);
+          input.value = '';
         },
-        error: (error) => {
-          this.snackBar.open('Lỗi khi tải lên: ' + error.message, 'Đóng', {
-            duration: 5000,
-          });
+        error: () => {
+          this.snackBar.open('Tải lên thất bại', 'Đóng', { duration: 3000 });
+          input.value = '';
         },
       });
     }
   }
 
-  downloadFile(fileName: string): void {
-    this.fileService.downloadFile(fileName).subscribe({
+  downloadFile(fileId: number, fileName: string): void {
+    this.fileService.downloadFile(fileId).subscribe({
       next: (blob) => {
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
@@ -132,13 +177,13 @@ export class FileManagementComponent implements OnInit, OnDestroy {
     });
   }
 
-  convertToPdf(fileName: string): void {
-    this.fileService.convertToPdf(fileName).subscribe({
+  convertToPdf(fileId: number): void {
+    this.fileService.convertToPdf(fileId).subscribe({
       next: (blob) => {
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = fileName.replace('.docx', '.pdf');
+        link.download = 'converted_file.pdf';
         link.click();
         window.URL.revokeObjectURL(url);
       },
@@ -150,13 +195,14 @@ export class FileManagementComponent implements OnInit, OnDestroy {
     });
   }
 
-  convertSelectedToPdf(): void {
-    const selectedFiles = this.files.filter(
-      (f) => f.selected && f.type === 'doc'
-    );
-    if (selectedFiles.length === 0) {
+  convertSelectedToPdf(file?: FileInfo): void {
+    const filesToConvert = file
+      ? [file]
+      : this.files.filter((f) => f.selected && f.type === 'doc');
+
+    if (filesToConvert.length === 0) {
       this.snackBar.open(
-        'Vui lòng chọn ít nhất một file để chuyển đổi',
+        'Vui lòng chọn ít nhất một file DOC để chuyển đổi',
         'Đóng',
         {
           duration: 3000,
@@ -166,12 +212,36 @@ export class FileManagementComponent implements OnInit, OnDestroy {
       );
       return;
     }
-    selectedFiles.forEach((file) => {
-      this.convertToPdf(file.name);
+
+    filesToConvert.forEach((fileToConvert) => {
+      this.fileService.convertAndSavePdf(fileToConvert.id).subscribe({
+        next: () => {
+          this.snackBar.open(
+            `Đã chuyển ${fileToConvert.file_name} sang PDF thành công`,
+            'Đóng',
+            {
+              duration: 3000,
+              horizontalPosition: 'right',
+              verticalPosition: 'top',
+            }
+          );
+        },
+        error: (error) => {
+          this.snackBar.open(
+            `Lỗi khi chuyển ${fileToConvert.file_name} sang PDF: ${error.message}`,
+            'Đóng',
+            {
+              duration: 5000,
+              horizontalPosition: 'right',
+              verticalPosition: 'top',
+            }
+          );
+        },
+      });
     });
   }
 
-  deleteFile(fileName: string): void {
+  deleteFile(fileId: number): void {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '400px',
       data: { message: 'Bạn có chắc muốn xóa file này?' },
@@ -179,7 +249,7 @@ export class FileManagementComponent implements OnInit, OnDestroy {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        this.fileService.deleteFile(fileName).subscribe({
+        this.fileService.deleteFile(fileId).subscribe({
           next: () => {
             this.snackBar.open('Xóa file thành công', 'Đóng', {
               duration: 3000,
@@ -200,42 +270,5 @@ export class FileManagementComponent implements OnInit, OnDestroy {
         });
       }
     });
-  }
-
-  filterFiles(): FileInfo[] {
-    let filteredFiles = this.files;
-
-    if (this.searchTerm) {
-      filteredFiles = filteredFiles.filter((file) =>
-        file.name.toLowerCase().includes(this.searchTerm.toLowerCase())
-      );
-    }
-
-    if (this.fileTypeFilter !== 'all') {
-      filteredFiles = filteredFiles.filter(
-        (file) => file.type === this.fileTypeFilter
-      );
-    }
-
-    if (this.sortBy) {
-      filteredFiles.sort((a, b) => {
-        switch (this.sortBy) {
-          case 'name':
-            return a.name.localeCompare(b.name);
-          case 'date':
-            return b.uploadDate.getTime() - a.uploadDate.getTime();
-          case 'size':
-            return b.size - a.size;
-          default:
-            return 0;
-        }
-      });
-    }
-
-    return filteredFiles;
-  }
-
-  ngOnDestroy(): void {
-    this.subscription.unsubscribe();
   }
 }

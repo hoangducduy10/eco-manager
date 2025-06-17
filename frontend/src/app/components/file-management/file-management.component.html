@@ -37,7 +37,8 @@
               type="text"
               class="form-control"
               placeholder="Tìm kiếm file..."
-              [(ngModel)]="searchTerm"
+              [(ngModel)]="fileName"
+              (ngModelChange)="search(true)"
             />
           </div>
         </div>
@@ -47,14 +48,6 @@
             <option value="doc">DOC/DOCX</option>
             <option value="pdf">PDF</option>
             <option value="other">Khác</option>
-          </select>
-        </div>
-        <div class="col-md-3">
-          <select class="form-select" [(ngModel)]="sortBy">
-            <option value="">Sắp xếp theo</option>
-            <option value="name">Tên file</option>
-            <option value="date">Ngày tải lên</option>
-            <option value="size">Kích thước</option>
           </select>
         </div>
       </div>
@@ -77,18 +70,15 @@
                 />
               </div>
             </th>
+            <th>ID</th>
             <th>Tên file</th>
             <th>Loại file</th>
-            <th>Kích thước</th>
-            <th>Ngày tải lên</th>
+            <th>Phiên bản</th>
             <th>Thao tác</th>
           </tr>
         </thead>
         <tbody>
-          <tr
-            *ngFor="let file of filterFiles()"
-            [class.selected]="file.selected"
-          >
+          <tr *ngFor="let file of files" [class.selected]="file.selected">
             <td>
               <div class="form-check">
                 <input
@@ -99,9 +89,10 @@
                 />
               </div>
             </td>
+            <td>{{ file.id }}</td>
             <td class="fw-medium">
               <i class="fas me-2" [ngClass]="getFileIcon(file.type)"></i>
-              {{ file.name }}
+              {{ file.file_name }}
             </td>
             <td>
               <span class="badge bg-primary-soft">
@@ -114,8 +105,7 @@
                 }}
               </span>
             </td>
-            <td>{{ file.size | fileSize }}</td>
-            <td>{{ file.uploadDate | date : "dd/MM/yyyy" }}</td>
+            <td>{{ file.version }}</td>
             <td>
               <button
                 class="btn btn-sm btn-light me-2"
@@ -127,7 +117,7 @@
               <button
                 class="btn btn-sm btn-light me-2"
                 matTooltip="Tải xuống"
-                (click)="downloadFile(file.name)"
+                (click)="downloadFile(file.id, file.file_name)"
               >
                 <i class="fas fa-download"></i>
               </button>
@@ -135,14 +125,14 @@
                 *ngIf="file.type === 'doc'"
                 class="btn btn-sm btn-light me-2"
                 matTooltip="Chuyển đổi PDF"
-                (click)="convertToPdf(file.name)"
+                (click)="convertSelectedToPdf(file)"
               >
                 <i class="fas fa-file-pdf"></i>
               </button>
               <button
                 class="btn btn-sm btn-light text-danger"
                 matTooltip="Xóa"
-                (click)="deleteFile(file.name)"
+                (click)="deleteFile(file.id)"
               >
                 <i class="fas fa-trash"></i>
               </button>

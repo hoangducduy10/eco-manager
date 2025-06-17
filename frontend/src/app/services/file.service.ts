@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { BehaviorSubject, Observable, catchError, map, of, tap } from 'rxjs';
 import { environment } from '../environments/environment';
+import { FileMetadata } from '../models/file-metadata';
+import { ListResponse } from '../reponses/list-response';
 
-export interface FileInfo {
-  name: string;
-  type: string;
+interface SearchParams {
+  fileName: string;
+  page: number;
   size: number;
-  uploadDate: Date;
-  selected?: boolean;
 }
 
 @Injectable({
@@ -16,35 +16,54 @@ export interface FileInfo {
 })
 export class FileService {
   private apiUrl = `${environment.apiBaseUrl}/files`;
-  private filesSubject = new BehaviorSubject<FileInfo[]>([]);
-  public files$ = this.filesSubject.asObservable();
+
+  private filesSubject = new BehaviorSubject<FileMetadata[]>([]);
+  private totalPagesSubject = new BehaviorSubject<number>(0);
+
+  files$ = this.filesSubject.asObservable();
+  totalPages$ = this.totalPagesSubject.asObservable();
+
+  private searchParamsSubject = new BehaviorSubject<SearchParams>({
+    fileName: '',
+    page: 0,
+    size: 5,
+  });
 
   constructor(private http: HttpClient) {
-    this.loadFiles();
+    this.searchParamsSubject.asObservable().subscribe(() => {
+      this.reloadFiles();
+    });
   }
 
-  private loadFiles(): void {
-    this.http
-      .get<string[]>(this.apiUrl)
-      .pipe(
-        map((files) =>
-          files.map((file) => ({
-            name: file,
-            type: this.getFileType(file),
-            size: 0,
-            uploadDate: new Date(),
-          }))
-        ),
-        tap((files) => this.filesSubject.next(files)),
-        catchError((error) => {
-          console.error('Error loading files:', error);
-          return of([]);
-        })
-      )
-      .subscribe();
+  loadFiles(
+    fileName: string,
+    page: number,
+    size: number
+  ): Observable<ListResponse<FileMetadata>> {
+    let params = new HttpParams()
+      .set('fileName', fileName)
+      .set('page', page.toString())
+      .set('size', size.toString());
+
+    return this.http.get<ListResponse<FileMetadata>>(this.apiUrl, {
+      params,
+    });
   }
 
-  private getFileType(fileName: string): string {
+  private reloadFiles(): void {
+    const { fileName, page, size } = this.searchParamsSubject.value;
+    this.loadFiles(fileName, page, size).subscribe({
+      next: (res) => {
+        this.filesSubject.next(res.items);
+        this.totalPagesSubject.next(res.totalPages);
+      },
+      error: (err) => {
+        console.error('Failed to load files:', err);
+      },
+    });
+  }
+
+  getFileType(fileName: string): string {
     const extension = fileName.split('.').pop()?.toLowerCase();
     switch (extension) {
       case 'doc':
@@ -62,7 +81,7 @@ export class FileService {
     formData.append('file', file);
 
     return this.http.post<string>(`${this.apiUrl}/upload`, formData).pipe(
-      tap(() => this.loadFiles()),
+      tap(() => this.refreshCurrentPage()),
       catchError((error) => {
         console.error('Error uploading file:', error);
         throw error;
@@ -77,7 +96,7 @@ export class FileService {
     return this.http
       .post<string>(`${this.apiUrl}/upload/multiple`, formData)
       .pipe(
-        tap(() => this.loadFiles()),
+        tap(() => this.refreshCurrentPage()),
         catchError((error) => {
           console.error('Error uploading multiple files:', error);
           throw error;
@@ -85,9 +104,9 @@ export class FileService {
       );
   }
 
-  downloadFile(fileName: string): Observable<Blob> {
+  downloadFile(fileId: number): Observable<Blob> {
     return this.http
-      .get(`${this.apiUrl}/${fileName}`, {
+      .get(`${this.apiUrl}/${fileId}`, {
         responseType: 'blob',
         headers: new HttpHeaders().set('Accept', '*/*'),
       })
@@ -99,10 +118,10 @@ export class FileService {
       );
   }
 
-  convertToPdf(fileName: string): Observable<Blob> {
+  convertToPdf(fileId: number): Observable<Blob> {
     return this.http
       .post<Blob>(
-        `${this.apiUrl}/convert-to-pdf/${fileName}`,
+        `${this.apiUrl}/convert-to-pdf/${fileId}`,
         {},
         {
           responseType: 'blob' as 'json',
@@ -117,11 +136,11 @@ export class FileService {
       );
   }
 
-  convertAndSavePdf(fileName: string): Observable<string> {
+  convertAndSavePdf(fileId: number): Observable<string> {
     return this.http
-      .post<string>(`${this.apiUrl}/convert-and-save/${fileName}`, {})
+      .post<string>(`${this.apiUrl}/convert-and-save/${fileId}`, {})
       .pipe(
-        tap(() => this.loadFiles()),
+        tap(() => this.refreshCurrentPage()),
         catchError((error) => {
           console.error('Error converting and saving PDF:', error);
           throw error;
@@ -129,9 +148,9 @@ export class FileService {
       );
   }
 
-  deleteFile(fileName: string): Observable<string> {
-    return this.http.delete<string>(`${this.apiUrl}/${fileName}`).pipe(
-      tap(() => this.loadFiles()),
+  deleteFile(fileId: number): Observable<string> {
+    return this.http.delete<string>(`${this.apiUrl}/${fileId}`).pipe(
+      tap(() => this.refreshCurrentPage()),
       catchError((error) => {
         console.error('Error deleting file:', error);
         throw error;
@@ -139,7 +158,17 @@ export class FileService {
     );
   }
 
-  getFiles(): Observable<FileInfo[]> {
+  getFiles(): Observable<FileMetadata[]> {
     return this.files$;
+  }
+
+  setSearchParams(params: Partial<SearchParams>) {
+    const current = this.searchParamsSubject.value;
+    this.searchParamsSubject.next({ ...current, ...params });
+  }
+
+  refreshCurrentPage() {
+    const current = this.searchParamsSubject.value;
+    this.searchParamsSubject.next({ ...current });
   }
 }
