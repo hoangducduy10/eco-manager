@@ -1,5 +1,7 @@
 package com.example.ecomanager.services.impl;
 
+import com.example.ecomanager.models.FileMetadata;
+import com.example.ecomanager.repositories.FileMetadataRepository;
 import com.example.ecomanager.services.IDocumnetConversionService;
 import com.example.ecomanager.services.IFileStorageService;
 import lombok.RequiredArgsConstructor;
@@ -10,29 +12,31 @@ import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @Service
 @RequiredArgsConstructor
 public class DocumentConversionService implements IDocumnetConversionService {
 
     private final IFileStorageService fileStorageService;
+    private final FileMetadataRepository fileMetadataRepository;
 
     @Override
-    public byte[] convertDocxToPdf(String docxFileName) throws Exception {
-        if (!docxFileName.toLowerCase().endsWith(".docx")) {
+    public byte[] convertDocxToPdf(Long fileId) throws Exception {
+        FileMetadata metadata = fileMetadataRepository.findById(fileId)
+                .orElseThrow(() -> new IllegalArgumentException("File not found with ID: " + fileId));
+
+        if (!metadata.getFileName().toLowerCase().endsWith(".docx")) {
             throw new IllegalArgumentException("Only DOCX files are supported for conversion");
         }
 
-        // Load DOCX file
-        Resource docxResource = fileStorageService.loadFile(docxFileName);
+        Resource docxResource = fileStorageService.loadFileByPath(metadata.getTreePath());
 
         try (InputStream docxInputStream = docxResource.getInputStream();
              ByteArrayOutputStream pdfOutputStream = new ByteArrayOutputStream()) {
 
-            // Load WordprocessingMLPackage from InputStream
             WordprocessingMLPackage wordPackage = WordprocessingMLPackage.load(docxInputStream);
-
-            // Convert to PDF
             Docx4J.toPDF(wordPackage, pdfOutputStream);
 
             return pdfOutputStream.toByteArray();
@@ -43,14 +47,29 @@ public class DocumentConversionService implements IDocumnetConversionService {
     }
 
     @Override
-    public String convertAndSavePdf(String docxFileName) throws Exception {
-        byte[] pdfBytes = convertDocxToPdf(docxFileName);
+    public String convertAndSavePdf(Long fileId) throws Exception {
+        byte[] pdfBytes = convertDocxToPdf(fileId);
 
-        // Generate PDF filename
-        String pdfFileName = docxFileName.replaceAll("\\.docx$", ".pdf");
+        FileMetadata metadata = fileMetadataRepository.findById(fileId)
+                .orElseThrow(() -> new IllegalArgumentException("File not found with ID: " + fileId));
 
-        fileStorageService.savePdfFile(pdfFileName, pdfBytes);
-        return pdfFileName;
+        String oldPath = metadata.getTreePath();
+        Path oldPathObj = Paths.get(oldPath);
+        String originalFileName = oldPathObj.getFileName().toString();
+
+        String pdfFileName = originalFileName.replaceAll("\\.docx$", ".pdf");
+
+        Path newPathObj = oldPathObj.getParent().resolve(pdfFileName);
+        String newPath = newPathObj.toString();
+
+        fileStorageService.replaceFile(oldPath, newPath, pdfBytes);
+
+        metadata.setFileName(metadata.getFileName().replaceAll("\\.docx$", ".pdf"));
+        metadata.setTreePath(newPath);
+        fileMetadataRepository.save(metadata);
+
+        return metadata.getFileName();
     }
+
 
 }

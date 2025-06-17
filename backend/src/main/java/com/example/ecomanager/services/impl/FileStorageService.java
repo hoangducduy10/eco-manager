@@ -83,6 +83,18 @@ public class FileStorageService implements IFileStorageService {
         }
 
         String originalFilename = Objects.requireNonNull(file.getOriginalFilename());
+
+        Optional<FileMetadata> latestFileOpt = fileMetadataRepository.findTopByFileNameAndStatusOrderByCreatedAtDesc(originalFilename, "ACTIVE");
+
+        String newVersion = "V1";
+        if (latestFileOpt.isPresent()) {
+            FileMetadata latest = latestFileOpt.get();
+            newVersion = "V" + (Integer.parseInt(latest.getVersion().substring(1)) + 1);
+
+            latest.setStatus("INACTIVE");
+            fileMetadataRepository.save(latest);
+        }
+
         String storedName = UUID.randomUUID() + "-" + originalFilename;
         Path target = rootLocation.resolve(storedName);
         Files.copy(file.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
@@ -90,7 +102,7 @@ public class FileStorageService implements IFileStorageService {
         FileMetadata metadata = FileMetadata.builder()
                 .fileName(originalFilename)
                 .treePath(target.toString())
-                .version("V1")
+                .version(newVersion)
                 .status("ACTIVE")
                 .build();
 
@@ -127,6 +139,12 @@ public class FileStorageService implements IFileStorageService {
     }
 
     @Override
+    public void replaceFile(String oldPath, String ignoredNewPath, byte[] newContent) throws IOException {
+        Path target = Paths.get(oldPath);
+        Files.write(target, newContent);
+    }
+
+    @Override
     public Resource loadFile(String filename) throws IOException {
         Path filePath = rootLocation.resolve(filename);
         Resource resource = new UrlResource(filePath.toUri());
@@ -139,13 +157,27 @@ public class FileStorageService implements IFileStorageService {
     }
 
     @Override
-    public void deleteFile(String filename) throws Exception {
-        FileMetadata metadata = fileMetadataRepository.findByFileName(filename)
-                .orElseThrow(() -> new DataNotFoundException("File not found: " + filename));
+    public void deleteFileById(Long fileId) throws IOException {
+        FileMetadata metadata = fileMetadataRepository.findById(fileId)
+                .orElseThrow(() -> new IllegalArgumentException("File not found with ID: " + fileId));
 
         Path filePath = Paths.get(metadata.getTreePath());
 
-        Files.deleteIfExists(filePath);
+       Files.deleteIfExists(filePath);
+
+
         fileMetadataRepository.delete(metadata);
     }
+
+    @Override
+    public void deleteFile(String path) {
+        try {
+            Path filePath = Paths.get(path);
+            Files.deleteIfExists(filePath);
+        } catch (IOException e) {
+            throw new RuntimeException("Could not delete file: " + path, e);
+        }
+    }
+
+
 }

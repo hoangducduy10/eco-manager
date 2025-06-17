@@ -2,7 +2,6 @@ package com.example.ecomanager.responses;
 
 import com.example.ecomanager.models.FileMetadata;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.Column;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -32,7 +31,5 @@ public class FileMetadataResponse {
                 .version(fileMetadata.getVersion())
                 .status(fileMetadata.getStatus())
                 .build();
-
     }
-
 }

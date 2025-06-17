@@ -81,79 +81,63 @@ public class FileController {
         }
     }
 
-    @GetMapping("/{fileName}")
-    public ResponseEntity<Resource> getFile(@PathVariable String fileName) throws IOException {
-        Optional<FileMetadataResponse> fileMeta = fileService.findByFileName(fileName);
-        if (fileMeta.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        FileMetadataResponse metadata = fileMeta.get();
-
-        Resource resource = fileService.loadFileByPath(metadata.getTreePath());
-
-        String contentType = Files.probeContentType(Paths.get(fileName));
-        if (contentType == null) {
-            contentType = "application/octet-stream";
-        }
-
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(contentType))
-                .header("Content-Disposition", "attachment; filename=\"" + resource.getFilename() + "\"")
-                .body(resource);
-    }
-
-    @PostMapping("/convert-to-pdf/{fileName}")
-    public ResponseEntity<byte[]> convertDocxToPdf(@PathVariable String fileName) {
+    @GetMapping("/{fileId}")
+    public ResponseEntity<Resource> getFile(@PathVariable Long fileId) throws IOException {
         try {
-            if (!fileName.toLowerCase().endsWith(".docx")) {
-                return ResponseEntity.badRequest()
-                        .body("Only DOCX files can be converted to PDF".getBytes());
-            }
+            FileMetadataResponse metadata = fileService.getFileById(fileId);
 
-            byte[] pdfBytes = conversionService.convertDocxToPdf(fileName);
-            String pdfFileName = fileName.replaceAll("\\.docx$", ".pdf");
+            Resource resource = fileService.loadFileByPath(metadata.getTreePath());
+
+            String contentType = Files.probeContentType(Paths.get(metadata.getTreePath()));
+            if (contentType == null) {
+                contentType = "application/octet-stream";
+            }
 
             return ResponseEntity.ok()
-                    .contentType(MediaType.APPLICATION_PDF)
-                    .header(HttpHeaders.CONTENT_DISPOSITION,
-                            "attachment; filename=\"" + pdfFileName + "\"")
-                    .body(pdfBytes);
+                    .contentType(MediaType.parseMediaType(contentType))
+                    .header("Content-Disposition", "attachment; filename=\"" + resource.getFilename() + "\"")
+                    .body(resource);
 
         } catch (Exception e) {
-            return ResponseEntity.status(500)
-                    .body(("Failed to convert file: " + e.getMessage()).getBytes());
+            return ResponseEntity.notFound().build();
         }
     }
 
-    @PostMapping("/convert-and-save/{fileName}")
-    public ResponseEntity<String> convertAndSavePdf(@PathVariable String fileName) {
+    @PostMapping("/convert-to-pdf/{fileId}")
+    public ResponseEntity<?> convertDocxToPdf(@PathVariable Long fileId) {
         try {
-            if (!fileName.toLowerCase().endsWith(".docx")) {
-                return ResponseEntity.badRequest()
-                        .body("Only DOCX files can be converted to PDF");
-            }
-
-            String pdfFileName = conversionService.convertAndSavePdf(fileName);
-            return ResponseEntity.ok("File converted and saved successfully: " + pdfFileName);
+            conversionService.convertDocxToPdf(fileId);
+            return ResponseEntity.ok().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("Invalid file: " + e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(500)
-                    .body("Failed to convert file: " + e.getMessage());
+            return ResponseEntity.status(500).body("Failed to convert file: " + e.getMessage());
         }
     }
 
-    @DeleteMapping("/{fileName}")
-    public ResponseEntity<?> deleteFile(
-            @PathVariable String fileName
-    ) throws Exception {
+    @PostMapping("/convert-and-save/{fileId}")
+    public ResponseEntity<Map<String, String>> convertAndSavePdf(@PathVariable Long fileId) {
         try {
-            fileService.deleteFile(fileName);
+            String pdfFileName = conversionService.convertAndSavePdf(fileId);
+            return ResponseEntity.ok(Map.of("message", "File converted and saved successfully", "fileName", pdfFileName));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Invalid file: " + e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", "Failed to convert file: " + e.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/{fileId}")
+    public ResponseEntity<?> deleteFileById(@PathVariable Long fileId) {
+        try {
+            fileService.deleteFileById(fileId);
             Map<String, String> response = new HashMap<>();
             response.put("message", "File deleted successfully!");
             return ResponseEntity.ok(response);
-        } catch (IOException e) {
+        } catch (Exception e) {
             return ResponseEntity.status(500).body("Failed to delete file: " + e.getMessage());
         }
     }
+
 
 }

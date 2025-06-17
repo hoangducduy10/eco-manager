@@ -28,6 +28,10 @@ public interface IFileStorageService {
 
     Resource loadFile(String filename) throws IOException;
 
-    void deleteFile(String filename) throws Exception;
+    void replaceFile(String oldPath, String newPath, byte[] newContent) throws IOException;
+
+    void deleteFileById(Long fileId) throws Exception;
+
+    void deleteFile(String path);
 
 }
